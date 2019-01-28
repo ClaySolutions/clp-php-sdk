@@ -92,9 +92,12 @@ abstract class AbstractHttpClient {
 			$request->withData($payload);
 		}
 
+		if($this->config->get('clp.debug_mode') === 'on') {
+			$request->enableDebug(__DIR__ . '../../../debug.log');
+		}
+
 		return $request
 			->withHeaders($requestHeaders)
-			->enableDebug(__DIR__ . '../../debug.log')
 			->returnResponseObject();
 	}
 
