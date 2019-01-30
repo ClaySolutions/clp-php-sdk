@@ -13,6 +13,22 @@
 
 namespace Clay\CLP\Clients;
 
-class CLPClient {
+use Clay\CLP\APIs\IQAPI;
+use Clay\CLP\Utilities\AbstractAPI;
+use Clay\CLP\Utilities\AbstractHttpClient;
+use Illuminate\Contracts\Config\Repository;
 
+class CLPClient extends AbstractHttpClient {
+
+	/**
+	 * The API to interact with IQs.
+	 * @return IQAPI
+	 */
+	public function iqs() : AbstractAPI {
+		return IQAPI::getInstance($this);
+	}
+
+	public function getEndpointBaseURL(): string {
+		return $this->config->get('clp.endpoints.api');
+	}
 }

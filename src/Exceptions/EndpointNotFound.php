@@ -14,10 +14,10 @@
 namespace Clay\CLP\Exceptions;
 
 
-class EndpointNotFoundException extends \Exception {
+class EndpointNotFound extends \Exception {
 
 	public function __construct(string $url) {
-		parent::__construct("CLP API returned status 404 Not Found: {$url}", 11001);
+		parent::__construct("CLP API returned status 404 Not Found: {$url}", 40400);
 	}
 
 }

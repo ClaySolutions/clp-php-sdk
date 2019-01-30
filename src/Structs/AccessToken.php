@@ -14,16 +14,29 @@
 namespace Clay\CLP\Structs;
 
 
+use Carbon\Carbon;
+
 class AccessToken {
+
+	/**
+	 * The leeway, in seconds, to say that a token is expired
+	 */
+	const LEEWAY = 5;
 
 	protected $accessToken;
 	protected $tokenType;
 	protected $expiresIn;
 
-	public function __construct(array $generatedAccessToken) {
+	/**
+	 * @var Carbon When was this token generated at?
+	 */
+	protected $generatedAt;
+
+	public function __construct(array $generatedAccessToken, Carbon $generatedAt) {
 		$this->accessToken = $generatedAccessToken['access_token'] ?? null;
 		$this->tokenType = $generatedAccessToken['token_type'] ?? null;
 		$this->expiresIn = $generatedAccessToken['expires_in'] ?? null;
+		$this->generatedAt = $generatedAt;
 	}
 
 	public function getAccessToken() : ?string {
@@ -40,6 +53,17 @@ class AccessToken {
 
 	public function generateAuthorizationHeader() : string {
 		return "{$this->getTokenType()} {$this->getAccessToken()}";
+	}
+
+	public function getGeneratedAt() : Carbon {
+		return $this->generatedAt;
+	}
+
+	public function hasExpired() : bool {
+		if($this->generatedAt === null) return true;
+		return $this->generatedAt
+			->addSeconds($this->getExpiresIn() - self::LEEWAY)
+			->isFuture();
 	}
 
 }

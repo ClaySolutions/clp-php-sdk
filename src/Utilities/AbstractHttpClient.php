@@ -13,8 +13,9 @@
 
 namespace Clay\CLP\Utilities;
 
+use Clay\CLP\Exceptions\AccessNotAllowed;
 use Clay\CLP\Exceptions\EmptyResponseFromServer;
-use Clay\CLP\Exceptions\EndpointNotFoundException;
+use Clay\CLP\Exceptions\EndpointNotFound;
 use Clay\CLP\Exceptions\HttpRequestError;
 use Illuminate\Contracts\Config\Repository;
 use Ixudra\Curl\Builder;
@@ -35,9 +36,16 @@ abstract class AbstractHttpClient {
 	protected $curl;
 
 	/**
+	 * The configuration repository.
 	 * @var Repository
 	 */
 	protected $config;
+
+	/**
+	 * The auth header provider closure.
+	 * @var \Closure|null
+	 */
+	protected $authorizationHeaderProvider = null;
 
 	public abstract function getEndpointBaseURL() : string;
 
@@ -56,7 +64,18 @@ abstract class AbstractHttpClient {
 	 * @return string
 	 */
 	public function generateEndpointURL(string $path) : string {
+		if($this->isFullURL($path)) return str_finish($path, '/');
 		return str_finish($this->getEndpointBaseURL(), '/') . $path;
+	}
+
+	/**
+	 * Checks if a given path/URI is a full URL or local path.
+	 * @param string $input
+	 * @return bool True if full URL, false if local path
+	 */
+	protected function isFullURL(string $input) : bool {
+		return (substr($input, 0, 7) === 'http://')
+			|| (substr($input, 0, 8) === 'https://');
 	}
 
 	/**
@@ -70,15 +89,29 @@ abstract class AbstractHttpClient {
 	}
 
 	/**
+	 * Sets a callback to generate an authorization header for each request.
+	 * The authorization header is expected to generate the string following 'Authorization:' on the header.
+	 * @param \Closure $closure
+	 */
+	public function setAuthorizationHeaderProvider(\Closure $closure) {
+		$this->authorizationHeaderProvider = $closure;
+	}
+
+	/**
 	 * Builds an HTTP request with CURL
 	 * @param string $url
 	 * @param array $headers
+	 * @param array $payload
 	 * @param bool $isJsonPayload
 	 * @return Builder
 	 */
 	protected function buildRequest(string $url, array $headers = [], array $payload = [], bool $isJsonPayload = true) : Builder {
 
 		$requestHeaders = array_merge($this->getDefaultHeaders(), $headers);
+
+		if($this->authorizationHeaderProvider !== null) {
+			array_push($requestHeaders, "Authorization: " . ($this->authorizationHeaderProvider)());
+		}
 
 		$request = $this->curl->to($url);
 
@@ -108,8 +141,9 @@ abstract class AbstractHttpClient {
 	 * @param string $url
 	 * @return array|object The parsed response, decoded from JSON
 	 * @throws EmptyResponseFromServer
-	 * @throws EndpointNotFoundException
+	 * @throws EndpointNotFound
 	 * @throws HttpRequestError
+	 * @throws AccessNotAllowed
 	 */
 	protected function parseResponse($response, string $url) {
 
@@ -122,13 +156,18 @@ abstract class AbstractHttpClient {
 		}
 
 		switch($response->status) {
-			case 404: throw new EndpointNotFoundException($url);
+			case 404:
+				throw new EndpointNotFound($url);
+			case 401:
+			case 403:
+				throw new AccessNotAllowed($url, $response->status, json_encode($response));
 			case 400:
+			case 422:
 			case 500:
 				throw new HttpRequestError($url, $response->status, json_encode($response));
 		}
 
-		throw new EmptyResponseFromServer($url);
+		throw new EmptyResponseFromServer($url, $response);
 	}
 
 	/**
@@ -140,10 +179,11 @@ abstract class AbstractHttpClient {
 	 * @param bool $isJsonPayload
 	 * @return array|object The response.
 	 * @throws EmptyResponseFromServer
-	 * @throws EndpointNotFoundException
+	 * @throws EndpointNotFound
 	 * @throws HttpRequestError
+	 * @throws AccessNotAllowed
 	 */
-	public function post(string $path, array $payload, array $headers = [], bool $isJsonPayload = true) {
+	public function post(string $path, array $payload = [], array $headers = [], bool $isJsonPayload = true) {
 
 		$url = $this->generateEndpointURL($path);
 
@@ -163,10 +203,11 @@ abstract class AbstractHttpClient {
 	 * @param bool $isJsonPayload
 	 * @return array|object The response.
 	 * @throws EmptyResponseFromServer
-	 * @throws EndpointNotFoundException
+	 * @throws EndpointNotFound
 	 * @throws HttpRequestError
+	 * @throws AccessNotAllowed
 	 */
-	public function put(string $path, array $payload, array $headers = [], bool $isJsonPayload = true) {
+	public function put(string $path, array $payload = [], array $headers = [], bool $isJsonPayload = true) {
 
 		$url = $this->generateEndpointURL($path);
 
@@ -186,8 +227,9 @@ abstract class AbstractHttpClient {
 	 * @param bool $isJsonPayload
 	 * @return array|object The response.
 	 * @throws EmptyResponseFromServer
-	 * @throws EndpointNotFoundException
+	 * @throws EndpointNotFound
 	 * @throws HttpRequestError
+	 * @throws AccessNotAllowed
 	 */
 	public function patch(string $path, array $payload, array $headers = [], bool $isJsonPayload = true) {
 
@@ -207,8 +249,9 @@ abstract class AbstractHttpClient {
 	 * @param array $headers Additional headers, if any. Will be merged with default headers.
 	 * @return array|object The response.
 	 * @throws EmptyResponseFromServer
-	 * @throws EndpointNotFoundException
+	 * @throws EndpointNotFound
 	 * @throws HttpRequestError
+	 * @throws AccessNotAllowed
 	 */
 	public function get(string $path, array $headers = []) {
 
@@ -228,8 +271,9 @@ abstract class AbstractHttpClient {
 	 * @param array $headers
 	 * @return array|object
 	 * @throws EmptyResponseFromServer
-	 * @throws EndpointNotFoundException
+	 * @throws EndpointNotFound
 	 * @throws HttpRequestError
+	 * @throws AccessNotAllowed
 	 */
 	public function delete(string $path, array $headers = []) {
 
