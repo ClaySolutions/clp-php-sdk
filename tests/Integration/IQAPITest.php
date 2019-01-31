@@ -13,36 +13,11 @@
 
 namespace Tests\Integration;
 
-
-use Clay\CLP\Clients\CLPClient;
-use Clay\CLP\Clients\IdentityServerClient;
 use Clay\CLP\Structs\IQ;
 use Clay\CLP\Structs\NewIQRegistration;
-use Tests\TestCase;
+use Tests\CLPTestCase;
 
-class IQAPITest extends TestCase {
-
-	/**
-	 * @var CLPClient $client
-	 */
-	protected $client;
-
-	/**
-	 * @var IdentityServerClient
-	 */
-	protected $identityServer;
-
-
-	public function setUp() {
-		parent::setUp();
-
-		$this->identityServer = new IdentityServerClient($this->config);
-
-		$this->client = new CLPClient($this->config);
-		$this->client->setAuthorizationHeaderProvider(function () {
-			return $this->identityServer->provideAccessToken()->generateAuthorizationHeader();
-		});
-	}
+class IQAPITest extends CLPTestCase {
 
 	public function test_can_get_iqs() {
 
@@ -156,6 +131,12 @@ class IQAPITest extends TestCase {
 		$this->assertInstanceOf('Illuminate\Support\Collection', $hardwareTree);
 		$this->assertGreaterThan(0, $hardwareTree->count());
 		$this->assertInstanceOf('Clay\CLP\Structs\IQHardware', $hardwareTree->first());
+
+	}
+
+	public function test_can_set_iq_hardware_tree() {
+
+		$this->markTestSkipped("IQ Set Tree: not ready to test (need Lock->detach first)");
 
 	}
 

@@ -16,6 +16,7 @@ namespace Clay\CLP\APIs;
 
 use Clay\CLP\Structs\IQ;
 use Clay\CLP\Structs\IQHardware;
+use Clay\CLP\Structs\IQHardwareTree;
 use Clay\CLP\Structs\NewIQRegistration;
 use Clay\CLP\Utilities\AbstractAPI;
 use Clay\CLP\Utilities\MultiPageResponse;
@@ -90,6 +91,35 @@ class IQAPI extends AbstractAPI {
 			->map(function ($item) {
 				return new IQHardware((array) $item);
 			});
+	}
+
+	/**
+	 * @param IQHardwareTree $tree
+	 * @param string $accessorID
+	 * @return array|object
+	 * @throws \Clay\CLP\Exceptions\AccessNotAllowed
+	 * @throws \Clay\CLP\Exceptions\EmptyResponseFromServer
+	 * @throws \Clay\CLP\Exceptions\EndpointNotFound
+	 * @throws \Clay\CLP\Exceptions\HttpRequestError
+	 */
+	public function setHardwareTree(IQHardwareTree $tree, string $accessorID) {
+
+		$newIQTree = $tree
+			->getAllHardware()
+			->map(function ($hw) use ($tree) { /* @var $hw \Clay\CLP\Structs\IQHardware */
+				return [
+					"id" => $tree->getIQID(),
+				    "hardware_type" => $hw->getType(),
+				    "mac" => $hw->getMacAddress(),
+				    "customer_reference" => $hw->getCustomerReference(),
+				];
+			})
+			->toArray();
+
+		return $this->client->put('iqs/' . $tree->getIQID() . '/tree', [
+			'accessor_id' => $accessorID,
+			'iq_tree_items' => $newIQTree,
+		]);
 	}
 
 }

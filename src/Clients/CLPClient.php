@@ -14,6 +14,7 @@
 namespace Clay\CLP\Clients;
 
 use Clay\CLP\APIs\IQAPI;
+use Clay\CLP\APIs\LockAPI;
 use Clay\CLP\Utilities\AbstractAPI;
 use Clay\CLP\Utilities\AbstractHttpClient;
 use Illuminate\Contracts\Config\Repository;
@@ -26,6 +27,14 @@ class CLPClient extends AbstractHttpClient {
 	 */
 	public function iqs() : AbstractAPI {
 		return IQAPI::getInstance($this);
+	}
+
+	/**
+	 * The API to interact with Locks.
+	 * @return LockAPI
+	 */
+	public function locks() : AbstractAPI {
+		return LockAPI::getInstance($this);
 	}
 
 	public function getEndpointBaseURL(): string {

@@ -39,12 +39,16 @@ abstract class AbstractAPI {
 
 	}
 
+	protected static $instances = [];
+
 	public static function getInstance(AbstractHttpClient $client) : self {
-		if(static::$instance === null) {
-			static::$instance = new static($client);
+		$className = get_called_class();
+
+		if(!isset(self::$instances[$className])) {
+			self::$instances[$className] = new static($client);
 		}
 
-		return static::$instance;
+		return self::$instances[$className];
 	}
 
 }
