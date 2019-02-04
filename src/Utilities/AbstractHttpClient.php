@@ -157,7 +157,7 @@ abstract class AbstractHttpClient {
 
 		switch($response->status) {
 			case 404:
-				throw new EndpointNotFound($url);
+				throw new EndpointNotFound($url, json_encode($response));
 			case 401:
 			case 403:
 				throw new AccessNotAllowed($url, $response->status, json_encode($response));

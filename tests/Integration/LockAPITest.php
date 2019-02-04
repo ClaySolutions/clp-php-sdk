@@ -173,7 +173,7 @@ class LockAPITest extends CLPTestCase {
 
 		$lock = $this->client->locks()->getLocks(["mac eq '{$macAddress}'"])->items()->first(); /* @var $lock \Clay\CLP\Structs\Lock */
 
-		$this->client->locks()->triggerLockRegistrationMode($lock->getID(), 5);
+		$this->client->locks()->triggerLockRegistrationMode($lock->getID(), 15);
 
 		// TODO: why is this 404?
 

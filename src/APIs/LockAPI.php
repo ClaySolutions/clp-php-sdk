@@ -20,6 +20,7 @@ use Clay\CLP\Structs\Key;
 use Clay\CLP\Structs\Lock;
 use Clay\CLP\Utilities\AbstractAPI;
 use Clay\CLP\Utilities\MultiPageResponse;
+use http\Exception\InvalidArgumentException;
 
 class LockAPI extends AbstractAPI {
 
@@ -178,6 +179,10 @@ class LockAPI extends AbstractAPI {
 	 * @throws \Clay\CLP\Exceptions\HttpRequestError
 	 */
 	public function triggerLockRegistrationMode(string $lockID, int $durationInSeconds = 60) {
+		if($durationInSeconds < 15) {
+			throw new \InvalidArgumentException("Duration in seconds for tag registration should be over 15 seconds.");
+		}
+
 		return $this->client->patch('locks/' . $lockID . '/tag_registration', [
 			'duration_in_seconds' => $durationInSeconds
 		]);
