@@ -13,6 +13,7 @@
 
 namespace Clay\CLP\Clients;
 
+use Clay\CLP\APIs\AccessorAPI;
 use Clay\CLP\APIs\IQAPI;
 use Clay\CLP\APIs\LockAPI;
 use Clay\CLP\APIs\RepeaterAPI;
@@ -53,6 +54,14 @@ class CLPClient extends AbstractHttpClient {
 	 */
 	public function tags() : AbstractAPI {
 		return TagAPI::getInstance($this);
+	}
+
+	/**
+	 * The API to interact with Accessors.
+	 * @return AccessorAPI
+	 */
+	public function accessors() : AbstractAPI {
+		return AccessorAPI::getInstance($this);
 	}
 
 	public function getEndpointBaseURL(): string {

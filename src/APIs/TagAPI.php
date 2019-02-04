@@ -30,6 +30,13 @@ class TagAPI extends AbstractAPI {
 		return new MultiPageResponse($response->content, $this->client, Tag::class);
 	}
 
+	public function getTagByNumber(string $tagNumber) : ?Tag {
+		$response = $this->client->get('tags' . $this->buildODataFiltersParameter(["tag_number eq '{$tagNumber}'"]));
+		$list = new MultiPageResponse($response->content, $this->client, Tag::class);
+
+		return $list->items()->first() ?? null;
+	}
+
 	public function deleteTag(string $tagID) {
 		return $this->client->delete('tags/' . $tagID);
 	}
