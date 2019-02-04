@@ -28,10 +28,22 @@ class TagAPITest extends CLPTestCase {
 
 	}
 
+	public function test_can_find_tag_by_number() {
+
+		$tagNumber = $this->config->get('clp.test.tag_number');
+		$foundTags = $this->client->tags()->getTags(["tag_number eq '{$tagNumber}'"]);
+
+		$this->assertInstanceOf('Clay\CLP\Utilities\MultiPageResponse', $foundTags);
+		$this->assertEquals(1, $foundTags->items()->count());
+		$this->assertInstanceOf('Clay\CLP\Structs\Tag', $foundTags->items()->first());
+
+	}
+
 	public function test_can_get_single_tag() {
 
-		$existingTag = $this->client->tags()->getTags()->items()->first();
-		var_dump($existingTag);
+		$tagNumber = $this->config->get('clp.test.tag_number');
+		$existingTag = $this->client->tags()->getTags(["tag_number eq '{$tagNumber}'"])->items()->first();
+
 		$tag = $this->client->tags()->getTag($existingTag->getID());
 
 		$this->assertInstanceOf('Clay\CLP\Structs\Tag', $tag);
