@@ -63,7 +63,7 @@ class AccessToken {
 		if($this->generatedAt === null) return true;
 		return $this->generatedAt
 			->addSeconds($this->getExpiresIn() - self::LEEWAY)
-			->isFuture();
+			->isPast();
 	}
 
 }

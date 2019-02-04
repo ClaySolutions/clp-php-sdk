@@ -105,9 +105,11 @@ abstract class AbstractHttpClient {
 	 * @param bool $isJsonPayload
 	 * @return Builder
 	 */
-	protected function buildRequest(string $url, array $headers = [], array $payload = [], bool $isJsonPayload = true) : Builder {
+	protected function buildRequest(string $url, array $headers = [], array $payload = [], bool $isJsonPayload = true, bool $skipDefaultHeaders = false) : Builder {
 
-		$requestHeaders = array_merge($this->getDefaultHeaders(), $headers);
+		$requestHeaders = $skipDefaultHeaders
+			? $headers
+			: array_merge($this->getDefaultHeaders(), $headers);
 
 		if($this->authorizationHeaderProvider !== null) {
 			array_push($requestHeaders, "Authorization: " . ($this->authorizationHeaderProvider)());
@@ -177,17 +179,18 @@ abstract class AbstractHttpClient {
 	 * @param array $payload The request payload.
 	 * @param array $headers Additional headers, if any. Will be merged with default headers.
 	 * @param bool $isJsonPayload
+	 * @param bool $skipDefaultHeaders
 	 * @return array|object The response.
+	 * @throws AccessNotAllowed
 	 * @throws EmptyResponseFromServer
 	 * @throws EndpointNotFound
 	 * @throws HttpRequestError
-	 * @throws AccessNotAllowed
 	 */
-	public function post(string $path, array $payload = [], array $headers = [], bool $isJsonPayload = true) {
+	public function post(string $path, array $payload = [], array $headers = [], bool $isJsonPayload = true, bool $skipDefaultHeaders = false) {
 
 		$url = $this->generateEndpointURL($path);
 
-		$response = $this->buildRequest($url, $headers, $payload, $isJsonPayload)
+		$response = $this->buildRequest($url, $headers, $payload, $isJsonPayload, $skipDefaultHeaders)
 			->post();
 
 		return $this->parseResponse($response, $url);
@@ -201,17 +204,18 @@ abstract class AbstractHttpClient {
 	 * @param array $payload The request payload.
 	 * @param array $headers Additional headers, if any. Will be merged with default headers.
 	 * @param bool $isJsonPayload
+	 * @param bool $skipDefaultHeaders
 	 * @return array|object The response.
+	 * @throws AccessNotAllowed
 	 * @throws EmptyResponseFromServer
 	 * @throws EndpointNotFound
 	 * @throws HttpRequestError
-	 * @throws AccessNotAllowed
 	 */
-	public function put(string $path, array $payload = [], array $headers = [], bool $isJsonPayload = true) {
+	public function put(string $path, array $payload = [], array $headers = [], bool $isJsonPayload = true, bool $skipDefaultHeaders = false) {
 
 		$url = $this->generateEndpointURL($path);
 
-		$response = $this->buildRequest($url, $headers, $payload, $isJsonPayload)
+		$response = $this->buildRequest($url, $headers, $payload, $isJsonPayload, $skipDefaultHeaders)
 			->put();
 
 		return $this->parseResponse($response, $url);
@@ -225,17 +229,18 @@ abstract class AbstractHttpClient {
 	 * @param array $payload The request payload.
 	 * @param array $headers Additional headers, if any. Will be merged with default headers.
 	 * @param bool $isJsonPayload
+	 * @param bool $skipDefaultHeaders
 	 * @return array|object The response.
+	 * @throws AccessNotAllowed
 	 * @throws EmptyResponseFromServer
 	 * @throws EndpointNotFound
 	 * @throws HttpRequestError
-	 * @throws AccessNotAllowed
 	 */
-	public function patch(string $path, array $payload, array $headers = [], bool $isJsonPayload = true) {
+	public function patch(string $path, array $payload, array $headers = [], bool $isJsonPayload = true, bool $skipDefaultHeaders = false) {
 
 		$url = $this->generateEndpointURL($path);
 
-		$response = $this->buildRequest($url, $headers, $payload, $isJsonPayload)
+		$response = $this->buildRequest($url, $headers, $payload, $isJsonPayload, $skipDefaultHeaders)
 			->patch();
 
 		return $this->parseResponse($response, $url);
@@ -247,17 +252,18 @@ abstract class AbstractHttpClient {
 	 *
 	 * @param string $path The API path.
 	 * @param array $headers Additional headers, if any. Will be merged with default headers.
+	 * @param bool $skipDefaultHeaders
 	 * @return array|object The response.
+	 * @throws AccessNotAllowed
 	 * @throws EmptyResponseFromServer
 	 * @throws EndpointNotFound
 	 * @throws HttpRequestError
-	 * @throws AccessNotAllowed
 	 */
-	public function get(string $path, array $headers = []) {
+	public function get(string $path, array $headers = [], bool $skipDefaultHeaders = false) {
 
 		$url = $this->generateEndpointURL($path);
 
-		$response = $this->buildRequest($url, $headers)
+		$response = $this->buildRequest($url, $headers, [], true, $skipDefaultHeaders)
 			->get();
 
 		return $this->parseResponse($response, $url);
@@ -269,17 +275,18 @@ abstract class AbstractHttpClient {
 	 *
 	 * @param string $path
 	 * @param array $headers
+	 * @param bool $skipDefaultHeaders
 	 * @return array|object
+	 * @throws AccessNotAllowed
 	 * @throws EmptyResponseFromServer
 	 * @throws EndpointNotFound
 	 * @throws HttpRequestError
-	 * @throws AccessNotAllowed
 	 */
-	public function delete(string $path, array $headers = []) {
+	public function delete(string $path, array $headers = [], bool $skipDefaultHeaders = false) {
 
 		$url = $this->generateEndpointURL($path);
 
-		$response = $this->buildRequest($url, $headers)
+		$response = $this->buildRequest($url, $headers, [], true, $skipDefaultHeaders)
 			->delete();
 
 		return $this->parseResponse($response, $url);

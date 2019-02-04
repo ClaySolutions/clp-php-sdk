@@ -29,6 +29,7 @@ class IdentityServerClientTest extends TestCase {
 		$this->assertIsString($accessToken->getAccessToken());
 		$this->assertIsString($accessToken->getTokenType());
 		$this->assertIsInt($accessToken->getExpiresIn());
+		$this->assertFalse($accessToken->hasExpired());
 
 	}
 
