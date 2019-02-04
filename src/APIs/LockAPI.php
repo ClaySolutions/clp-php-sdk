@@ -15,7 +15,7 @@ namespace Clay\CLP\APIs;
 
 
 use Clay\CLP\Exceptions\EndpointNotFound;
-use Clay\CLP\Structs\EasyOfficeModeSchedule;
+use Clay\CLP\Structs\TimeSchedule;
 use Clay\CLP\Structs\Key;
 use Clay\CLP\Structs\Lock;
 use Clay\CLP\Utilities\AbstractAPI;
@@ -129,31 +129,31 @@ class LockAPI extends AbstractAPI {
 
 	/**
 	 * @param string $lockID
-	 * @return EasyOfficeModeSchedule
+	 * @return TimeSchedule
 	 * @throws \Clay\CLP\Exceptions\AccessNotAllowed
 	 * @throws \Clay\CLP\Exceptions\EmptyResponseFromServer
 	 * @throws \Clay\CLP\Exceptions\HttpRequestError
 	 */
-	public function getEasyOfficeModeSchedule(string $lockID) : ?EasyOfficeModeSchedule {
+	public function getEasyOfficeModeSchedule(string $lockID) : ?TimeSchedule {
 		try {
 			$request = $this->client->get('locks/' . $lockID . '/easy_office_mode_schedule');
 		} catch (EndpointNotFound $notFound) {
 			return null;
 		}
 
-		return new EasyOfficeModeSchedule((array) $request->content);
+		return new TimeSchedule((array) $request->content);
 	}
 
 	/**
 	 * @param string $lockID
-	 * @param EasyOfficeModeSchedule $schedule
+	 * @param TimeSchedule $schedule
 	 * @return array|object
 	 * @throws \Clay\CLP\Exceptions\AccessNotAllowed
 	 * @throws \Clay\CLP\Exceptions\EmptyResponseFromServer
 	 * @throws \Clay\CLP\Exceptions\EndpointNotFound
 	 * @throws \Clay\CLP\Exceptions\HttpRequestError
 	 */
-	public function setEasyOfficeModeSchedule(string $lockID, EasyOfficeModeSchedule $schedule) {
+	public function setEasyOfficeModeSchedule(string $lockID, TimeSchedule $schedule) {
 		return $this->client->put('locks/' . $lockID . '/easy_office_mode_schedule', $schedule->toArray());
 	}
 

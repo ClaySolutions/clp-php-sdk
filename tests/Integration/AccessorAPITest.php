@@ -75,6 +75,7 @@ class AccessorAPITest extends CLPTestCase {
 	public function test_can_assign_and_unassign_tags_to_accessor() {
 
 		$tagNumber = $this->config->get('clp.test.tag_number');
+		$this->assertIsString($tagNumber, 'You have not configured a Test Tag Number in your environment!');
 
 		$newAccessor = new NewAccessor(null, false);
 		$createdAccessor = $this->client->accessors()->createAccessor($newAccessor);

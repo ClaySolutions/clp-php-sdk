@@ -13,6 +13,7 @@
 
 namespace Clay\CLP\Clients;
 
+use Clay\CLP\APIs\AccessGroupAPI;
 use Clay\CLP\APIs\AccessorAPI;
 use Clay\CLP\APIs\CollectionAPI;
 use Clay\CLP\APIs\IQAPI;
@@ -71,6 +72,14 @@ class CLPClient extends AbstractHttpClient {
 	 */
 	public function collections() : AbstractAPI {
 		return CollectionAPI::getInstance($this);
+	}
+
+	/**
+	 * The API to interact with Access Groups.
+	 * @return AccessGroupAPI
+	 */
+	public function accessGroups() : AbstractAPI {
+		return AccessGroupAPI::getInstance($this);
 	}
 
 	public function getEndpointBaseURL(): string {

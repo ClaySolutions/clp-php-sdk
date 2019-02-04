@@ -23,7 +23,7 @@ class NewAccessor {
 	public $toggle_manual_office_mode;
 	public $remote_access;
 
-	public function __construct(?string $collectionID,
+	public function __construct(?string $collectionID = null,
 	                            bool $isBlocked = false,
 	                            bool $canOverridePrivacyMode = false,
 	                            bool $canToggleEasyOfficeMode = true,

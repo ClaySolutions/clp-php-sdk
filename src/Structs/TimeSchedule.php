@@ -1,9 +1,7 @@
 <?php
 /**
  * clp-php-sdk
- * EasyOfficeModeSchedule.php
- *
- * Copyright (c) Clay Solutions BV
+ * TimeSchedule.phpCopyright (c) Clay Solutions BV
  * my-clay.com - 2019
  *
  * @author Aryel Tupinamba <aryel@my-clay.com>
@@ -14,8 +12,9 @@
 namespace Clay\CLP\Structs;
 
 
-class EasyOfficeModeSchedule {
+class TimeSchedule {
 
+	protected $id;
 	protected $monday;
 	protected $tuesday;
 	protected $wednesday;
@@ -29,6 +28,7 @@ class EasyOfficeModeSchedule {
 	protected $end_date;
 
 	public function __construct(array $apiResponse = []) {
+		$this->id = $apiResponse['id'] ?? null;
 		$this->monday = boolval($apiResponse['monday'] ?? false);
 		$this->tuesday = boolval($apiResponse['tuesday'] ?? false);
 		$this->wednesday = boolval($apiResponse['wednesday'] ?? false);
@@ -42,8 +42,8 @@ class EasyOfficeModeSchedule {
 		$this->end_date = $apiResponse['end_date'] ?? null;
 	}
 
-	public function toArray() : array {
-		return [
+	public function toArray($stripID = false) : array {
+		$data = [
 			'monday' => $this->monday,
 			'tuesday' => $this->tuesday,
 			'wednesday' => $this->wednesday,
@@ -56,6 +56,16 @@ class EasyOfficeModeSchedule {
 			'start_date' => $this->start_date,
 			'end_date' => $this->end_date,
 		];
+
+		if(!$stripID) {
+			$data['id'] = $this->id;
+		}
+
+		return $data;
+	}
+
+	public function getID(): ?string {
+		return $this->id;
 	}
 
 	public function isMondayEnabled(): bool {

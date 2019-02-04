@@ -15,7 +15,7 @@ namespace Tests\Integration;
 
 
 use Carbon\Carbon;
-use Clay\CLP\Structs\EasyOfficeModeSchedule;
+use Clay\CLP\Structs\TimeSchedule;
 use Tests\CLPTestCase;
 
 class LockAPITest extends CLPTestCase {
@@ -131,7 +131,7 @@ class LockAPITest extends CLPTestCase {
 		$yesterday = Carbon::yesterday()->toDateString();
 		$tomorrow = Carbon::tomorrow()->toDateString();
 
-		$newEOMSchedule = new EasyOfficeModeSchedule();
+		$newEOMSchedule = new TimeSchedule();
 		$newEOMSchedule->setMondayEnabled(true);
 		$newEOMSchedule->setWednesdayEnabled(true);
 		$newEOMSchedule->setStartTime('09:12');
@@ -174,8 +174,6 @@ class LockAPITest extends CLPTestCase {
 		$lock = $this->client->locks()->getLocks(["mac eq '{$macAddress}'"])->items()->first(); /* @var $lock \Clay\CLP\Structs\Lock */
 
 		$this->client->locks()->triggerLockRegistrationMode($lock->getID(), 15);
-
-		// TODO: why is this 404?
 
 	}
 
