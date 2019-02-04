@@ -45,7 +45,7 @@ class MultiPageResponse {
 
 	/**
 	 * MultiPageResponse constructor.
-	 * @param array $response The received response from the API
+	 * @param object|mixed $response The received response from the API
 	 * @param AbstractHttpClient $client The client that will be used to request more pages
 	 * @param \stdClass $itemClass [optiona] The class to cast each item with. If null, will return array results.
 	 * @throws \Exception
