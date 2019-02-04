@@ -16,6 +16,7 @@ namespace Clay\CLP\Clients;
 use Clay\CLP\APIs\IQAPI;
 use Clay\CLP\APIs\LockAPI;
 use Clay\CLP\APIs\RepeaterAPI;
+use Clay\CLP\APIs\TagAPI;
 use Clay\CLP\Utilities\AbstractAPI;
 use Clay\CLP\Utilities\AbstractHttpClient;
 use Illuminate\Contracts\Config\Repository;
@@ -44,6 +45,14 @@ class CLPClient extends AbstractHttpClient {
 	 */
 	public function repeaters() : AbstractAPI {
 		return RepeaterAPI::getInstance($this);
+	}
+
+	/**
+	 * The API to interact with Tags.
+	 * @return TagAPI
+	 */
+	public function tags() : AbstractAPI {
+		return TagAPI::getInstance($this);
 	}
 
 	public function getEndpointBaseURL(): string {
