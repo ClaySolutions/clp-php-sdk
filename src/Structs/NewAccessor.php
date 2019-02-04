@@ -30,7 +30,7 @@ class NewAccessor {
 	                            bool $canToggleManualOfficeMode = true,
 	                            bool $canHaveRemoteAccess = true) {
 
-		$this->remote_access = $collectionID;
+		$this->collection_id = $collectionID;
 		$this->blocked = $isBlocked;
 		$this->override_privacy_mode = $canOverridePrivacyMode;
 		$this->toggle_easy_office_mode = $canToggleEasyOfficeMode;
