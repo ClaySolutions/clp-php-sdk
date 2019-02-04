@@ -86,8 +86,6 @@ class AccessorAPITest extends CLPTestCase {
 		$tag = $this->client->tags()->getTagByNumber($tagNumber);
 		$this->assertInstanceOf('Clay\CLP\Structs\Tag', $tag);
 
-		var_dump($tag);
-
 		$this->client->accessors()->assignTagAsKey($createdAccessor->getID(), $tag->getID());
 
 		$assignedKeys = $this->client->accessors()->getAssignedKeys($createdAccessor->getID());
