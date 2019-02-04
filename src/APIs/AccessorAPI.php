@@ -51,7 +51,7 @@ class AccessorAPI extends AbstractAPI {
 		return new MultiPageResponse($response->content, $this->client, Key::class);
 	}
 
-	public function assignTagAsKey(string $accessorID, string $tagID, bool $isBlocked = false) : Key {
+	public function assignTag(string $accessorID, string $tagID, bool $isBlocked = false) : Key {
 		$response = $this->client->post('accessors/' . $accessorID . '/keys', [
 			'tag_id' => $tagID,
 			'blocked' => $isBlocked,
@@ -60,7 +60,33 @@ class AccessorAPI extends AbstractAPI {
 		return new Key((array) $response->content);
 	}
 
-	public function unassignKey(string $accessorID, string $keyID, bool $forceDelete = false) {
+	public function getAssignedKeyByTagID(string $accessorID, string $tagID) : ?Key {
+		return $this->getAssignedKeys($accessorID)
+			->items()
+			->first(function ($key) use ($tagID) { /* @var $key \Clay\CLP\Structs\Key */
+				return $key->getKeyID() === $tagID;
+			});
+	}
+
+	public function getAssignedKeyByTagNumber(string $accessorID, string $tagNumber) : ?Key {
+		return $this->getAssignedKeys($accessorID)
+			->items()
+			->first(function ($key) use ($tagNumber) { /* @var $key \Clay\CLP\Structs\Key */
+				return $key->getKeyNumber() === $tagNumber;
+			});
+	}
+
+	public function unassignTag(string $accessorID, string $tagID) {
+		$foundKey = $this->getAssignedKeyByTagID($accessorID, $tagID);
+
+		if(!$foundKey) {
+			throw new \InvalidArgumentException("The given tag ID ({$tagID}) does not belong to this accessor ({$accessorID})");
+		}
+
+		$this->removeKey($accessorID, $foundKey->getID());
+	}
+
+	public function removeKey(string $accessorID, string $keyID, bool $forceDelete = false) {
 		return $this->client->delete('accessors/' . $accessorID . '/keys/' . $keyID . ($forceDelete ? '?force=true' : ''));
 	}
 

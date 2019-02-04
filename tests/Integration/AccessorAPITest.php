@@ -86,25 +86,21 @@ class AccessorAPITest extends CLPTestCase {
 		$tag = $this->client->tags()->getTagByNumber($tagNumber);
 		$this->assertInstanceOf('Clay\CLP\Structs\Tag', $tag);
 
-		$this->client->accessors()->assignTagAsKey($createdAccessor->getID(), $tag->getID());
+		$this->client->accessors()->assignTag($createdAccessor->getID(), $tag->getID());
 
-		$assignedKeys = $this->client->accessors()->getAssignedKeys($createdAccessor->getID());
+		$tagKey = $this->client->accessors()->getAssignedKeyByTagID($createdAccessor->getID(), $tag->getID());
+		$tagKeyByNumber = $this->client->accessors()->getAssignedKeyByTagNumber($createdAccessor->getID(), $tag->getTagNumber());
 
-		$this->assertTrue($assignedKeys->items()->contains(function ($key) use ($tag) { /* @var $key \Clay\CLP\Structs\Key */
-			return $key->getKeyNumber() === $tag->getTagNumber();
-		}));
+		$this->assertNotNull($tagKey);
+		$this->assertNotNull($tagKeyByNumber);
 
-		$key = $assignedKeys->items()->first(function ($key) use ($tag) { /* @var $key \Clay\CLP\Structs\Key */
-			return $key->getKeyNumber() === $tag->getTagNumber();
-		});
+		$this->client->accessors()->removeKey($createdAccessor->getID(), $tagKey->getID());
 
-		$this->client->accessors()->unassignKey($createdAccessor->getID(), $key->getID());
+		$remainingTagKey = $this->client->accessors()->getAssignedKeyByTagID($createdAccessor->getID(), $tag->getID());
+		$remainingTagKeyByNumber = $this->client->accessors()->getAssignedKeyByTagNumber($createdAccessor->getID(), $tag->getTagNumber());
 
-		$assignedKeys = $this->client->accessors()->getAssignedKeys($createdAccessor->getID());
-
-		$this->assertFalse($assignedKeys->items()->contains(function ($key) use ($tag) { /* @var $key \Clay\CLP\Structs\Key */
-			return $key->getKeyNumber() === $tag->getTagNumber();
-		}));
+		$this->assertNull($remainingTagKey);
+		$this->assertNull($remainingTagKeyByNumber);
 
 		$this->client->accessors()->deleteAccessor($createdAccessor->getID());
 
