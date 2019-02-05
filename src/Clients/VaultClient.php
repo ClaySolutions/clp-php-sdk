@@ -112,12 +112,12 @@ class VaultClient extends AbstractHttpClient {
 	 * @throws \Clay\CLP\Exceptions\EndpointNotFound
 	 * @throws \Clay\CLP\Exceptions\HttpRequestError
 	 */
-	public function sign(string $variable, string $input) : ?string {
+	public function sign(string $variable, string $input, bool $isBase64Encoded = false) : ?string {
 
 		$vaultMount = $this->config->get('vault.mount');
 
 		$response = $this->post("v1/{$vaultMount}/sign/{$variable}/sha2-256", [
-			'input' => base64_encode($input),
+			'input' => $isBase64Encoded ? $input : base64_encode($input),
 		]);
 
 		return $response->content->data->signature ?? null;
@@ -137,12 +137,12 @@ class VaultClient extends AbstractHttpClient {
 	 * @throws \Clay\CLP\Exceptions\EndpointNotFound
 	 * @throws \Clay\CLP\Exceptions\HttpRequestError
 	 */
-	public function verify(string $variable, string $input, string $signature) : bool {
+	public function verify(string $variable, string $input, string $signature, bool $isBase64Encoded = false) : bool {
 
 		$vaultMount = $this->config->get('vault.mount');
 
 		$response = $this->post("v1/{$vaultMount}/verify/{$variable}/sha2-256", [
-			'input' => base64_encode($input),
+			'input' => $isBase64Encoded ? $input : base64_encode($input),
 			'signature' => $signature,
 			'format' => 'base64'
 		]);

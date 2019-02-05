@@ -15,6 +15,7 @@ namespace Clay\CLP\APIs;
 
 
 use Clay\CLP\Structs\Accessor;
+use Clay\CLP\Structs\AccessorDevice;
 use Clay\CLP\Structs\Key;
 use Clay\CLP\Structs\NewAccessor;
 use Clay\CLP\Utilities\AbstractAPI;
@@ -88,6 +89,63 @@ class AccessorAPI extends AbstractAPI {
 
 	public function removeKey(string $accessorID, string $keyID, bool $forceDelete = false) {
 		return $this->client->delete('accessors/' . $accessorID . '/keys/' . $keyID . ($forceDelete ? '?force=true' : ''));
+	}
+
+	public function getDevices(string $accessorID) : MultiPageResponse {
+		$response = $this->client->get('accessors/' . $accessorID . '/devices');
+		return new MultiPageResponse($response->content, $this->client, AccessorDevice::class);
+	}
+
+	public function getDevice(string $accessorID, string $deviceID) : AccessorDevice {
+		$response = $this->client->get('accessors/' . $accessorID . '/devices/' . $deviceID);
+		return new AccessorDevice((array) $response->content);
+	}
+
+	public function createDevice(string $accessorID, ?string $deviceCustomerReference = null) : AccessorDevice {
+		$response = $this->client->post('accessors/' . $accessorID . '/devices', [
+			'customer_reference' => $deviceCustomerReference
+		]);
+
+		return new AccessorDevice((array) $response->content);
+	}
+
+	public function getDeviceMobileKey(string $accessorID, string $deviceID, string $iqID) : ?string {
+		$response = $this->client->get('accessors/' . $accessorID . '/devices/' . $deviceID . '/mkey?iq_id=' . $iqID);
+		return $response->content->mkey_data ?? null;
+	}
+
+	public function deleteDevice(string $accessorID, string $deviceID) {
+		return $this->client->delete('accessors/' . $accessorID . '/devices/' . $deviceID);
+	}
+
+	public function createDeviceCertificate(string $accessorID, string $deviceID, string $publicKey, string $expiryDate) : string {
+		$response = $this->client->post('accessors/' . $accessorID . '/devices/' . $deviceID . '/certificate', [
+			'public_key' => $publicKey,
+			'expiry_date' => $expiryDate,
+		]);
+
+		return $response->content->certificate_data ?? null;
+	}
+
+	public function activateDeviceCertificate(string $accessorID, string $deviceID, string $signature) : string {
+		if(substr($signature, 0, 9) === 'vault:v1:') {
+			$signature = substr($signature, 9);
+		}
+
+		$response = $this->client->patch('accessors/' . $accessorID . '/devices/' . $deviceID . '/certificate', [
+			'signature' => $signature
+		]);
+
+		return $response->content->certificate;
+	}
+
+	public function replaceDeviceCertificate(string $accessorID, string $deviceID, string $publicKey, string $expiryDate) : string {
+		$response = $this->client->put('accessors/' . $accessorID . '/devices/' . $deviceID . '/certificate', [
+			'public_key' => $publicKey,
+			'expiry_date' => $expiryDate,
+		]);
+
+		return $response->content->certificate_data ?? null;
 	}
 
 }
