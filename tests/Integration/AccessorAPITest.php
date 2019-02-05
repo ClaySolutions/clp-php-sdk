@@ -32,12 +32,12 @@ class AccessorAPITest extends CLPTestCase {
 
 	public function test_can_get_single_accessor() {
 
-		$knowAccessor = $this->client->accessors()->getAccessors()->items()->first();
+		$knownAccessor = $this->client->accessors()->getAccessors()->items()->first();
 
-		$accessor = $this->client->accessors()->getAccessor($knowAccessor->getID());
+		$accessor = $this->client->accessors()->getAccessor($knownAccessor->getID());
 
 		$this->assertInstanceOf('Clay\CLP\Structs\Accessor', $accessor);
-		$this->assertEquals($accessor->getID(), $knowAccessor->getID());
+		$this->assertEquals($accessor->getID(), $knownAccessor->getID());
 
 	}
 

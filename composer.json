@@ -31,5 +31,15 @@
         "psr-4": {
             "Tests\\": "tests/"
         }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Clay\\CLP\\Providers\\CLPServiceProvider"
+            ],
+            "aliases": {
+                "CLP": "Clay\\CLP\\Facades\\CLP"
+            }
+        }
     }
 }
