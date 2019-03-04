@@ -23,16 +23,24 @@ class CLPServiceProvider extends ServiceProvider {
 
 	public function register() {
 
-		$this->app->singleton(CLPClient::class, function ($app) {
-			return new CLPClient($app->make('config'));
-		});
-
 		$this->app->singleton(IdentityServerClient::class, function ($app) {
 			return new IdentityServerClient($app->make('config'));
 		});
 
 		$this->app->singleton(VaultClient::class, function ($app) {
 			return new VaultClient($app->make('config'));
+		});
+
+		$this->app->singleton(CLPClient::class, function ($app) {
+
+			$client = new CLPClient($app->make('config'));
+
+			$identityServer = $app->make(IdentityServerClient::class); /* @var $identityServer \Clay\CLP\Clients\IdentityServerClient */
+
+			$client->setAuthorizationHeaderProvider(function () use ($identityServer) {
+				return $identityServer->provideAccessToken()->generateAuthorizationHeader();
+			});
+
 		});
 
 	}

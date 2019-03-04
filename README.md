@@ -1,4 +1,4 @@
-# Clay Hardware API SDK
+# Clay Hardware API PHP SDK
 
 ## Requirements
 - PHP 7.2 or above
@@ -70,6 +70,7 @@ $accessor = $client->accessors()->createAccessor($newAccessor);
 - `Updates` (`/updates`)
 
 ## Usage guide (TO-DO)
+- [Generating and using tokens](/docs/generating_and_using_tokens.md)
 - [Registering an IQ]() *(TO-DO)*
 - [Attaching Locks to an IQ]() *(TO-DO)*
 - [Using Repeaters and the HW Tree]() *(TO-DO)*
