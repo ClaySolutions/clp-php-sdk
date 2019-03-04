@@ -25,16 +25,13 @@ $client->iqs()->setHardwareTree($tree);
 ```
 
 
-To detach the lock from the IQ, remove it from the IQ hardware tree, as follows:
+To detach the lock from the IQ, you can call the `detachLock()` endpoint. You can pass an accessor ID as a second parameter, if you'd like to log the executor of the action.  
 
 ```
 <?php
 
 $lock = $client->locks()->getLock($lockID);
+$client->locks()->detachFromIQ($lock->getID());
 
-$tree = $client->iqs()->getHardwareTree($iqID);
-$tree->removeHardware($lock);
-
-$client->iqs()->setHardwareTree($tree);
 ```
 
