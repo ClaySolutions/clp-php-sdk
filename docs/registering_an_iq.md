@@ -23,7 +23,7 @@ The `NewIQRegistration` constructor takes the following parameters:
 
 **`string $activationCode`:** The activation code for the IQ. You can find this in the back of the IQ device. *Example*: `"03.E4.AD"`
 
-**`bool $isSubscribed`:** Whether this IQ has an active Clay subscription. KS Connect partners can leave this as `false`. *Example*: `false`
+**`bool $isSubscribed`:** Whether this IQ has an active Clay subscription. KS Connect partners can leave this as `true`. If this is false, the IQ is registered in a *suspended* state, and will stay suspended until a subscription is attached (the IQ will have to be restarted for this). If in doubt, leave `true`. *Example*: `true`
 
 Once the object is created, you can call the `registerIQ()` endpoint, giving it as a parameter:
 
@@ -34,7 +34,7 @@ $iqRegistration = new NewIQRegistration(
     "b34369d2-43b4-4344-8c12-b7977afa2522",
     "Europe/Amsterdam",
     "03.E4.AD",
-    false
+    true
 );
 
 $newIQ = $client->iqs()->registerIQ($iqRegistration);
