@@ -71,8 +71,8 @@ $accessor = $client->accessors()->createAccessor($newAccessor);
 
 ## Usage guide (TO-DO)
 - [Generating and using tokens](/docs/generating_and_using_tokens.md)
-- [Registering an IQ]() *(TO-DO)*
-- [Attaching Locks to an IQ]() *(TO-DO)*
+- [Registering an IQ](/docs/registering_an_iq.md)
+- [Attaching Locks to an IQ](/docs/attaching_locks_to_an_iq.md)
 - [Using Repeaters and the HW Tree]() *(TO-DO)*
 - [Registering Accessors and Tags]() *(TO-DO)*
 - [Registering a Mobile Key]() *(TO-DO)*
