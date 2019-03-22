@@ -53,6 +53,19 @@ class LockAPI extends AbstractAPI {
 
 	/**
 	 * @param string $lockID
+	 * @return Lock
+	 * @throws \Clay\CLP\Exceptions\AccessNotAllowed
+	 * @throws \Clay\CLP\Exceptions\EmptyResponseFromServer
+	 * @throws \Clay\CLP\Exceptions\EndpointNotFound
+	 * @throws \Clay\CLP\Exceptions\HttpRequestError
+	 */
+	public function deleteLock(string $lockID) {
+		$response = $this->client->delete('locks/' . $lockID);
+		return $response->content;
+	}
+
+	/**
+	 * @param string $lockID
 	 * @param string $accessorID
 	 * @return Lock
 	 * @throws \Clay\CLP\Exceptions\AccessNotAllowed
