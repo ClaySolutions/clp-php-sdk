@@ -36,7 +36,7 @@ class IQHardware {
 		$this->battery_state = $apiResponse['battery_state'] ?? null;
 	}
 
-	public function getID(): string {
+	public function getID(): ?string {
 		return $this->id;
 	}
 
@@ -48,11 +48,11 @@ class IQHardware {
 		return $this->hardware_type;
 	}
 
-	public function getMacAddress(): string {
+	public function getMacAddress(): ?string {
 		return $this->mac;
 	}
 
-	public function getCustomerReference(): string {
+	public function getCustomerReference(): ?string {
 		return $this->customer_reference;
 	}
 

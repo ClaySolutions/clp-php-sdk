@@ -14,7 +14,7 @@
 namespace Clay\CLP\Structs;
 
 
-class Repeater {
+class Repeater extends IQHardware {
 
 	protected $id;
 	protected $iq_id;
@@ -56,8 +56,8 @@ class Repeater {
 		return $this->customer_reference;
 	}
 
-	public function isOnline(): ?bool {
-		return $this->online;
+	public function isOnline(): bool {
+		return $this->online ?? false;
 	}
 
 	public function getIQLinkState(): ?string {

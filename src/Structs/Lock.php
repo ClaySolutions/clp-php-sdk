@@ -14,7 +14,7 @@
 namespace Clay\CLP\Structs;
 
 
-class Lock {
+class Lock extends IQHardware {
 
 	protected $id;
 	protected $iq = null;
@@ -50,6 +50,10 @@ class Lock {
 		$this->easy_office_mode_schedule = boolval($apiResponse['easy_office_mode_schedule'] ?? null);
 		$this->collection_id = $apiResponse['collection_id'] ?? null;
 		$this->privacy_mode = boolval($apiResponse['privacy_mode'] ?? null);
+	}
+
+	public function getType() : string {
+		return 'lock';
 	}
 
 	public function getID(): ?string {
