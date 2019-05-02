@@ -25,7 +25,7 @@ abstract class AbstractAPI {
 
 	public function buildODataFiltersParameter(array $filters = []) : string {
 
-		if(sizeof($filters) <= 0) return '';
+		if(sizeof($filters) <= 0) return '?';
 
 		$filteringString = urlencode(
 			collect($filters)
