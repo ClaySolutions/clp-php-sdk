@@ -8,7 +8,7 @@
 
 
 ## Installation
-- Require the library using `composer require claysolutions/clp-php-sdk:^1.0`.
+- Require the library using `composer require clay/clp-php-sdk:1.0.1`.
 ### Laravel service provider
 - If you're using Laravel 5.5 or above, the service is automatically registered for you.
 - If not, add the `Clay\CLP\Providers\CLPServiceProfider::class` to the list of providers in your `app.php`.
@@ -61,12 +61,12 @@ $accessor = $client->accessors()->createAccessor($newAccessor);
 - `IQAPI`: lets you manage IQs; implements the endpoints within the `/iqs` namespace.
 - `LockAPI`: lets you manage locks; implements the endpoints within the `/lock` namespace.
 - `TagAPI`: lets you manage tags; implements the endpoints within the `/tag` endpoint.
+- `EntriesAPI`: lets you fetch entries in the log (door open/close, locks, etc); implements the endpoints within the `/entries` endpoint.
+- `IncidentsAPI`: lets you fetch incidents in the lock (door left open, iq disconnects, etc); implements the endpoints within the `/incidents` endpoint.
 
 #### Namespaces still not implemented
 - `AccessorSettings` (`/collections/{collection_id}/accessor_settings`)
 - `CollectionSettings` (`/accessors/{accessor_id}/collection_settings`)
-- `Entries` (`/entries`)
-- `Incidents` (`/incidents`)
 - `Updates` (`/updates`)
 
 ## Usage guide (TO-DO)
@@ -96,3 +96,5 @@ $accessor = $client->accessors()->createAccessor($newAccessor);
 - **IQ Registration:** the process that registers a brand-new IQ into the API, via its Activation Code. After this process, the IQ gets an ID, and can have hardware attached to it. 
 - **Tag Registration Mode:** a mode that Locks have in order to assign brand-new tags into the system. When tags are not previously registered, they are not recognized by the API and cannot be assigned to accessors. Setting a Lock to Tag Registration Mode lets you touch the lock with the fresh tags, and these tags get registered on the system.
 - **Offline Mode / Offline Access:** when there is a communication problem (power outage, RF interference, etc) between locks and their IQs/Repeaters, the Locks enter Offline Mode. While in Offline Mode, they resort to an internal list of preset tags/mobile keys that are allowed access. While in Offline Mode, only the keys registered for Offline Access to that specific Lock can access it. Offline Mode does not support time schedules, and cannot be given directly to accessors, only to keys (tags & mobile keys). 
+- **Entries:** events that relate to access control in the locks, such as access granted, access denied, etc.
+- **Incidents:** events that relate to unexpected issues, such as IQ connect/disconnect, door left open, etc.

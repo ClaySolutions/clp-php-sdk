@@ -17,6 +17,7 @@ use Clay\CLP\APIs\AccessGroupAPI;
 use Clay\CLP\APIs\AccessorAPI;
 use Clay\CLP\APIs\CollectionAPI;
 use Clay\CLP\APIs\EntriesAPI;
+use Clay\CLP\APIs\IncidentsAPI;
 use Clay\CLP\APIs\IQAPI;
 use Clay\CLP\APIs\LockAPI;
 use Clay\CLP\APIs\RepeaterAPI;
@@ -84,11 +85,19 @@ class CLPClient extends AbstractHttpClient {
 	}
 
 	/**
-	 * The API to interact with Log entries
+	 * The API to interact with logged entries
 	 * @return EntriesAPI
 	 */
 	public function entries() : AbstractAPI {
 		return EntriesAPI::getInstance($this);
+	}
+
+	/**
+	 * The API to interact with logged incidents
+	 * @return IncidentsAPI
+	 */
+	public function incidents() : AbstractAPI {
+		return IncidentsAPI::getInstance($this);
 	}
 
 	public function getEndpointBaseURL(): string {
