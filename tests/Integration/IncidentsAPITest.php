@@ -66,7 +66,7 @@ class IncidentsAPITest extends CLPTestCase {
 
 	public function test_can_filter_by_date() {
 
-		$cutoffDate = Carbon::parse('2019-04-25 12:00:00');
+		$cutoffDate = Carbon::parse('2019-01-01 12:00:00');
 
 		$incidents = $this->client->incidents()->fetchIncidentsAfterTimestamp($cutoffDate, 150, []);
 
@@ -81,7 +81,7 @@ class IncidentsAPITest extends CLPTestCase {
 			$date = Carbon::parse($entry->getUtcDateTime());
 
 			$this->assertInstanceOf('Carbon\Carbon', $date);
-			$this->assertTrue($date->lte($cutoffDate));
+			$this->assertTrue($date->gte($cutoffDate));
 
 		});
 
@@ -89,7 +89,7 @@ class IncidentsAPITest extends CLPTestCase {
 
 	public function test_can_filter_by_date_and_collection() {
 
-		$cutoffDate = Carbon::parse('2019-04-25 12:00:00');
+		$cutoffDate = Carbon::parse('2019-01-01 12:00:00');
 		$collectionID = $this->config->get('clp.test.collection_id');
 
 		$incidents = $this->client->incidents()->fetchIncidentsAfterTimestamp($cutoffDate, 256, ["collection_id eq '{$collectionID}'"]);
@@ -105,7 +105,7 @@ class IncidentsAPITest extends CLPTestCase {
 			$date = Carbon::parse($entry->getUtcDateTime());
 
 			$this->assertInstanceOf('Carbon\Carbon', $date);
-			$this->assertTrue($date->lte($cutoffDate));
+			$this->assertTrue($date->gte($cutoffDate));
 			$this->assertEquals($collectionID, $entry->getCollectionID());
 
 		});

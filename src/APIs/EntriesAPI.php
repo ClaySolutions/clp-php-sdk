@@ -100,7 +100,7 @@ class EntriesAPI extends AbstractAPI {
 
 		$formattedDate = $timestamp->toIso8601ZuluString();
 
-		array_push($filters, "utc_date_time le DateTime'{$formattedDate}'");
+		array_push($filters, "utc_date_time ge DateTime'{$formattedDate}'");
 
 		return $this->fetchAllEntries($filters, $max);
 	}

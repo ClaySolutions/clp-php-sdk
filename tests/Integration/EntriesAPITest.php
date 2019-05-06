@@ -66,7 +66,7 @@ class EntriesAPITest extends CLPTestCase {
 
 	public function test_can_filter_by_date() {
 
-		$cutoffDate = Carbon::parse('2019-04-25 12:00:00');
+		$cutoffDate = Carbon::parse('2019-01-01 12:00:00');
 
 		$entries = $this->client->entries()->fetchEntriesAfterTimestamp($cutoffDate, 150, []);
 
@@ -81,7 +81,7 @@ class EntriesAPITest extends CLPTestCase {
 			$date = Carbon::parse($entry->getUtcDateTime());
 
 			$this->assertInstanceOf('Carbon\Carbon', $date);
-			$this->assertTrue($date->lte($cutoffDate));
+			$this->assertTrue($date->gte($cutoffDate));
 
 		});
 
@@ -89,7 +89,7 @@ class EntriesAPITest extends CLPTestCase {
 
 	public function test_can_filter_by_date_and_collection() {
 
-		$cutoffDate = Carbon::parse('2019-04-25 12:00:00');
+		$cutoffDate = Carbon::parse('2019-01-01 12:00:00');
 		$collectionID = $this->config->get('clp.test.collection_id');
 
 		$entries = $this->client->entries()->fetchEntriesAfterTimestamp($cutoffDate, 256, ["collection_id eq '{$collectionID}'"]);
@@ -105,8 +105,31 @@ class EntriesAPITest extends CLPTestCase {
 			$date = Carbon::parse($entry->getUtcDateTime());
 
 			$this->assertInstanceOf('Carbon\Carbon', $date);
-			$this->assertTrue($date->lte($cutoffDate));
+			$this->assertTrue($date->gte($cutoffDate));
 			$this->assertEquals($collectionID, $entry->getCollectionID());
+
+		});
+
+	}
+
+	public function test_has_recent_events() {
+
+		$cutoffDate = Carbon::parse('2019-04-01 00:00:00');
+
+		$entries = $this->client->entries()->fetchEntriesAfterTimestamp($cutoffDate, 150, []);
+
+		$this->assertInstanceOf('Illuminate\Support\Collection', $entries);
+		$this->assertGreaterThan(0, $entries->count());
+		$this->assertInstanceOf('Clay\CLP\Structs\Entry', $entries->first());
+
+		$entries->each(function ($entry) use ($cutoffDate) { /* @var $entry \Clay\CLP\Structs\Entry */
+
+			$this->assertInstanceOf('Clay\CLP\Structs\Entry', $entry);
+
+			$date = Carbon::parse($entry->getUtcDateTime());
+
+			$this->assertInstanceOf('Carbon\Carbon', $date);
+			$this->assertTrue($date->gte($cutoffDate));
 
 		});
 
