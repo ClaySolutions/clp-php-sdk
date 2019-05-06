@@ -41,6 +41,8 @@ class CLPServiceProvider extends ServiceProvider {
 				return $identityServer->provideAccessToken()->generateAuthorizationHeader();
 			});
 
+			return $client;
+
 		});
 
 	}

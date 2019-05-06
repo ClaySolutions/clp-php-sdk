@@ -24,7 +24,6 @@ use Clay\CLP\APIs\RepeaterAPI;
 use Clay\CLP\APIs\TagAPI;
 use Clay\CLP\Utilities\AbstractAPI;
 use Clay\CLP\Utilities\AbstractHttpClient;
-use Illuminate\Contracts\Config\Repository;
 
 class CLPClient extends AbstractHttpClient {
 
@@ -100,7 +99,11 @@ class CLPClient extends AbstractHttpClient {
 		return IncidentsAPI::getInstance($this);
 	}
 
+	/**
+	 * Returns the base endpoint URL.
+	 * @return string
+	 */
 	public function getEndpointBaseURL(): string {
-		return $this->config->get('clp.endpoints.api');
+		return $this->config->get('clp.endpoints.api', 'http://localhost/');
 	}
 }
