@@ -14,7 +14,9 @@
 namespace Clay\CLP\Structs;
 
 
-class Accessor {
+use Illuminate\Contracts\Support\Arrayable;
+
+class Accessor implements Arrayable {
 
 	protected $id;
 	protected $remote_access;
@@ -62,6 +64,16 @@ class Accessor {
 		return $this->collection_id;
 	}
 
-
+	public function toArray() : array {
+		return [
+			'id' => $this->id,
+			'remote_access' => $this->remote_access,
+			'blocked' => boolval($this->blocked ?? false),
+			'override_privacy_mode' => boolval($this->override_privacy_mode ?? false),
+			'toggle_easy_office_mode' => boolval($this->toggle_easy_office_mode ?? false),
+			'toggle_manual_office_mode' => boolval($this->toggle_manual_office_mode ?? false),
+			'collection_id' => $this->collection_id,
+		];
+	}
 
 }

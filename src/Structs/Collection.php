@@ -14,7 +14,9 @@
 namespace Clay\CLP\Structs;
 
 
-class Collection {
+use Illuminate\Contracts\Support\Arrayable;
+
+class Collection implements Arrayable {
 
 	protected $id;
 	protected $customer_reference;
@@ -48,6 +50,16 @@ class Collection {
 
 	public function getMasterKeyID(): ?string {
 		return $this->masterkey_id;
+	}
+
+	public function toArray() : array {
+		return [
+			'id' => $this->id,
+			'customer_reference' => $this->customer_reference,
+			'country_code' => $this->country_code,
+			'sync_mkey' => $this->sync_mkey,
+			'masterkey_id' => $this->masterkey_id,
+		];
 	}
 
 }

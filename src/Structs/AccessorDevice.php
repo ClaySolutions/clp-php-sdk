@@ -14,7 +14,9 @@
 namespace Clay\CLP\Structs;
 
 
-class AccessorDevice {
+use Illuminate\Contracts\Support\Arrayable;
+
+class AccessorDevice implements Arrayable {
 
 	protected $id;
 	protected $customer_reference;
@@ -48,6 +50,16 @@ class AccessorDevice {
 
 	public function getMobileKeyExpiryDate() : ?string {
 		return $this->mkey_expiry_date;
+	}
+
+	public function toArray() : array {
+		return [
+			'id' => $this->id,
+			'customer_reference' => $this->customer_reference,
+			'state' => $this->state,
+			'mkey_id' => $this->mkey_id,
+			'mkey_expiry_date' => $this->mkey_expiry_date,
+		];
 	}
 
 }

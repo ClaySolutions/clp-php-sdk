@@ -15,8 +15,9 @@ namespace Clay\CLP\Structs;
 
 
 use Carbon\Carbon;
+use Illuminate\Contracts\Support\Arrayable;
 
-class AccessToken {
+class AccessToken implements Arrayable {
 
 	/**
 	 * The leeway, in seconds, to say that a token is expired
@@ -64,6 +65,15 @@ class AccessToken {
 		return $this->generatedAt
 			->addSeconds($this->getExpiresIn() - self::LEEWAY)
 			->isPast();
+	}
+
+	public function toArray() : array {
+		return [
+			'accessToken' => $this->accessToken,
+			'tokenType' => $this->tokenType,
+			'expiresIn' => $this->expiresIn ? $this->expiresIn->toDateTimeString() : null,
+			'generatedAt' => $this->generatedAt ? $$this->generatedAt->toDateTimeSTring() : null,
+		];
 	}
 
 }

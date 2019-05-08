@@ -14,7 +14,9 @@
 namespace Clay\CLP\Structs;
 
 
-class Key {
+use Illuminate\Contracts\Support\Arrayable;
+
+class Key implements Arrayable {
 
 	protected $id;
 	protected $key_id;
@@ -56,6 +58,15 @@ class Key {
 		return $this->blocked;
 	}
 
-
+	public function toArray() : array {
+		return [
+			'id' => $this->id,
+			'key_id' => $this->key_id,
+			'key_number' => $this->key_number,
+			'key_type' => $this->key_type,
+			'accessor_id' => $this->accessor_id,
+			'blocked' => $this->blocked,
+		];
+	}
 
 }

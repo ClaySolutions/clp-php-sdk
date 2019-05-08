@@ -14,7 +14,9 @@
 namespace Clay\CLP\Structs;
 
 
-class Tag {
+use Illuminate\Contracts\Support\Arrayable;
+
+class Tag implements Arrayable {
 
 	protected $id;
 	protected $source_iq_id;
@@ -50,6 +52,14 @@ class Tag {
 		return $this->collection_id;
 	}
 
-
+	public function toArray() : array {
+		return [
+			'id' => $this->id,
+			'source_iq_id' => $this->source_iq_id,
+			'tag_number' => $this->tag_number,
+			'added_date' => $this->added_date,
+			'collection_id' => $this->collection_id,
+		];
+	}
 
 }

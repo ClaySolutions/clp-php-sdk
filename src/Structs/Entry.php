@@ -14,7 +14,9 @@
 namespace Clay\CLP\Structs;
 
 
-class Entry {
+use Illuminate\Contracts\Support\Arrayable;
+
+class Entry implements Arrayable {
 
 	protected $id;
 	protected $event_category;
@@ -128,6 +130,27 @@ class Entry {
 		return $this->access_detail;
 	}
 
-
+	public function toArray() : array {
+		return [
+			'id' => $this->id,
+			'event_category' => $this->event_category,
+			'event_detail' => $this->event_detail,
+			'utc_date_time' => $this->utc_date_time,
+			'local_date_time' => $this->local_date_time,
+			'lock_id' => $this->lock_id,
+			'lock_customer_reference' => $this->lock_customer_reference,
+			'lock_mac_address' => $this->lock_mac_address,
+			'accessor_id' => $this->accessor_id,
+			'iq_id' => $this->iq_id,
+			'iq_customer_reference' => $this->iq_customer_reference,
+			'iq_mac_address' => $this->iq_mac_address,
+			'iq_revision' => $this->iq_revision,
+			'collection_id' => $this->collection_id,
+			'collection_customer_reference' => $this->collection_customer_reference,
+			'exit_requested' => $this->exit_requested,
+			'access_by' => $this->access_by,
+			'access_detail' => $this->access_detail,
+		];
+	}
 
 }

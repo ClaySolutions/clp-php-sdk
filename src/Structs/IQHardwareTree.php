@@ -14,9 +14,10 @@
 namespace Clay\CLP\Structs;
 
 
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Collection;
 
-class IQHardwareTree {
+class IQHardwareTree implements Arrayable {
 
 	protected $iqID;
 	protected $tree;
@@ -52,6 +53,17 @@ class IQHardwareTree {
 
 	public function getAllHardware() : Collection {
 		return $this->tree;
+	}
+
+	public function toArray() : array {
+		return [
+			'iqID' => $this->iqID,
+			'tree' => $this->tree
+				->map(function (IQHardware $hardware) {
+					return $hardware->toArray();
+				})
+				->toArray(),
+		];
 	}
 
 }

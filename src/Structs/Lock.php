@@ -14,7 +14,9 @@
 namespace Clay\CLP\Structs;
 
 
-class Lock extends IQHardware {
+use Illuminate\Contracts\Support\Arrayable;
+
+class Lock extends IQHardware implements Arrayable {
 
 	protected $id;
 	protected $iq = null;
@@ -118,6 +120,27 @@ class Lock extends IQHardware {
 
 	public function isPrivacyModeEnabled(): bool {
 		return $this->privacy_mode;
+	}
+
+	public function toArray() : array {
+		return [
+			'id' => $this->id,
+			'iq' => $this->iq,
+			'repeater' => $this->repeater,
+			'mac' => $this->mac,
+			'customer_reference' => $this->customer_reference,
+			'locked_state' => $this->locked_state,
+			'lock_type' => $this->lock_type,
+			'online' => $this->online,
+			'iq_link_state' => $this->iq_link_state,
+			'tag_registration_state' => $this->tag_registration_state,
+			'battery_level' => $this->battery_level,
+			'left_open_alarm' => $this->left_open_alarm,
+			'intrusion_alarm' => $this->intrusion_alarm,
+			'easy_office_mode_schedule' => $this->easy_office_mode_schedule,
+			'collection_id' => $this->collection_id,
+			'privacy_mode' => $this->privacy_mode,
+		];
 	}
 
 }

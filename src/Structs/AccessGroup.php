@@ -14,7 +14,9 @@
 namespace Clay\CLP\Structs;
 
 
-class AccessGroup {
+use Illuminate\Contracts\Support\Arrayable;
+
+class AccessGroup implements Arrayable {
 
 	protected $id;
 	protected $customer_reference;
@@ -38,6 +40,12 @@ class AccessGroup {
 		return $this->collection_id;
 	}
 
-
+	public function toArray() : array {
+		return [
+			'id' => $this->id,
+			'customer_reference' => $this->customer_reference,
+			'collection_id' => $this->collection_id,
+		];
+	}
 
 }

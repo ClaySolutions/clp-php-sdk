@@ -12,7 +12,9 @@
 namespace Clay\CLP\Structs;
 
 
-class TimeSchedule {
+use Illuminate\Contracts\Support\Arrayable;
+
+class TimeSchedule implements Arrayable {
 
 	protected $id;
 	protected $monday;
@@ -155,7 +157,5 @@ class TimeSchedule {
 	public function setEndDate(?string $end_date): void {
 		$this->end_date = $end_date;
 	}
-
-
 
 }

@@ -14,7 +14,9 @@
 namespace Clay\CLP\Structs;
 
 
-class IQHardware {
+use Illuminate\Contracts\Support\Arrayable;
+
+class IQHardware implements Arrayable {
 
 	protected $id;
 	protected $parent_id;
@@ -66,6 +68,19 @@ class IQHardware {
 
 	public function getBatteryState(): string {
 		return $this->battery_state;
+	}
+
+	public function toArray() : array {
+		return [
+			'id' => $this->id,
+			'parent_id' => $this->parent_id,
+			'hardware_type' => $this->hardware_type,
+			'mac' => $this->mac,
+			'customer_reference' => $this->customer_reference,
+			'is_online' => $this->is_online,
+			'is_attached' => $this->is_attached,
+			'battery_state' => $this->battery_state,
+		];
 	}
 
 }

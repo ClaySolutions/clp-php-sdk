@@ -14,7 +14,9 @@
 namespace Clay\CLP\Structs;
 
 
-class Repeater extends IQHardware {
+use Illuminate\Contracts\Support\Arrayable;
+
+class Repeater extends IQHardware implements Arrayable {
 
 	protected $id;
 	protected $iq_id;
@@ -68,6 +70,17 @@ class Repeater extends IQHardware {
 		return $this->collection_id;
 	}
 
-
+	public function toArray() : array {
+		return [
+			'id' => $this->id,
+			'iq_id' => $this->iq_id,
+			'repeater_id' => $this->repeater_id,
+			'mac' => $this->mac,
+			'customer_reference' => $this->customer_reference,
+			'online' => $this->online,
+			'iq_link_state' => $this->iq_link_state,
+			'collection_id' => $this->collection_id,
+		];
+	}
 
 }
