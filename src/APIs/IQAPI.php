@@ -96,13 +96,14 @@ class IQAPI extends AbstractAPI {
 	/**
 	 * @param IQHardwareTree $tree
 	 * @param string $accessorID
+	 * @param string|null $otp
 	 * @return array|object
 	 * @throws \Clay\CLP\Exceptions\AccessNotAllowed
 	 * @throws \Clay\CLP\Exceptions\EmptyResponseFromServer
 	 * @throws \Clay\CLP\Exceptions\EndpointNotFound
 	 * @throws \Clay\CLP\Exceptions\HttpRequestError
 	 */
-	public function setHardwareTree(IQHardwareTree $tree, string $accessorID) {
+	public function setHardwareTree(IQHardwareTree $tree, string $accessorID, ?string $otp = null) {
 
 		$newIQTree = $tree
 			->getAllHardware()
@@ -119,6 +120,7 @@ class IQAPI extends AbstractAPI {
 		return $this->client->put('iqs/' . $tree->getIQID() . '/tree', [
 			'accessor_id' => $accessorID,
 			'iq_tree_items' => $newIQTree,
+			'otp' => $otp ?? '000000',
 		]);
 	}
 
