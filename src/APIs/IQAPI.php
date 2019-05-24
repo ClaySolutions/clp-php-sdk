@@ -111,15 +111,14 @@ class IQAPI extends AbstractAPI {
 				return [
 					"id" => $tree->getIQID(),
 				    "hardware_type" => $hw->getType(),
-				    "mac" => $hw->getMacAddress(),
-				    "customer_reference" => $hw->getCustomerReference(),
+					"parent_id" => $hw->getParentID(),
 				];
 			})
 			->toArray();
 
 		return $this->client->put('iqs/' . $tree->getIQID() . '/tree', [
 			'accessor_id' => $accessorID,
-			'iq_tree_items' => $newIQTree,
+			'iq_tree_items' => ((array) $newIQTree) ?? [],
 			'otp' => $otp ?? '000000',
 		]);
 	}
