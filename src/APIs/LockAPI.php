@@ -75,11 +75,11 @@ class LockAPI extends AbstractAPI {
 	 */
 	public function detachFromIQ(string $lockID, string $accessorID) : Lock {
 		$response = $this->client->patch('locks/' . $lockID . '/detach', [
-			'iq_lock_state' => 'detached_pending',
+			'iq_link_state' => 'detached_pending',
 			'accessor_id' => $accessorID,
 		]);
 
-		return new Lock($response->content);
+		return new Lock((array) $response->content);
 	}
 
 	/**
