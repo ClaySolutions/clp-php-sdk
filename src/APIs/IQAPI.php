@@ -116,11 +116,16 @@ class IQAPI extends AbstractAPI {
 			})
 			->toArray();
 
-		return $this->client->put('iqs/' . $tree->getIQID() . '/tree', [
+		$payload = [
 			'accessor_id' => $accessorID,
 			'iq_tree_items' => ((array) $newIQTree) ?? [],
-			'otp' => $otp ?? '000000',
-		]);
+		];
+
+		if($otp !== null) {
+			$payload['otp'] = $otp;
+		}
+
+		return $this->client->put('iqs/' . $tree->getIQID() . '/tree', $payload);
 	}
 
 }
