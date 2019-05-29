@@ -59,7 +59,7 @@ class IncidentsAPI extends AbstractAPI {
 
 		$fetched = 0;
 		$results = collect([]);
-		$continuationTokenQuery = "";
+		$continuationTokenHeader = null;
 
 		while($fetched < $max) {
 
@@ -67,8 +67,9 @@ class IncidentsAPI extends AbstractAPI {
 				$this->buildODataFiltersParameter($filters) .
 				"&\$inlinecount=allpages" .
 				"&\$orderby=local_date_time%20desc" .
-				"&\$top={$max}" .
-				$continuationTokenQuery);
+				"&\$top={$max}",
+				!is_null($continuationTokenHeader) ? [$continuationTokenHeader] : []
+			);
 
 			$fetched += sizeof($batch->content->items);
 			$results = $results->concat($batch->content->items);
@@ -77,7 +78,7 @@ class IncidentsAPI extends AbstractAPI {
 				break;
 			}
 
-			$continuationTokenQuery = "&\$continuationToken={$batch->content->continuation_token}";
+			$continuationTokenHeader = "CLP-Continuation-Token: {$batch->content->continuation_token}";
 		}
 
 		return collect($results->take($max))
