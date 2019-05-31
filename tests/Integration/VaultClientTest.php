@@ -15,6 +15,7 @@ namespace Tests\Integration;
 
 
 use Clay\CLP\Clients\VaultClient;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class VaultClientTest extends TestCase {
@@ -43,7 +44,7 @@ class VaultClientTest extends TestCase {
 	public function test_can_sign_variable_on_vault() {
 
 		for($attempts = 0; $attempts < 3; $attempts++) {
-			$randomString = str_random(rand(1024, 2048));
+			$randomString = Str::random(rand(1024, 2048));
 
 			$variable = $this->config->get('vault.variable');
 			$signature = $this->client->sign($variable, $randomString);
@@ -56,8 +57,8 @@ class VaultClientTest extends TestCase {
 
 	public function test_can_verify_signature_on_vault() {
 
-		$randomString = str_random(rand(1024, 2048));
-		$anotherRandomString = str_random(rand(1024, 2048));
+		$randomString = Str::random(rand(1024, 2048));
+		$anotherRandomString = Str::random(rand(1024, 2048));
 
 		$variable = $this->config->get('vault.variable');
 		$signature = $this->client->sign($variable, $randomString);
