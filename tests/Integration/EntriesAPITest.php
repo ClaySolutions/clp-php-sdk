@@ -28,19 +28,41 @@ class EntriesAPITest extends CLPTestCase {
 	}
 
 	public function test_can_get_all_entries() {
-		$entries = $this->client->entries()->fetchAllEntries([], 1000);
+		$entries = $this->client->entries()->fetchAllEntries([], 200);
 
 		$this->assertInstanceOf('Illuminate\Support\Collection', $entries);
-		$this->assertEquals(1000, $entries->count());
+		$this->assertEquals(200, $entries->count());
 		$this->assertInstanceOf('Clay\CLP\Structs\Entry', $entries->first());
 
 	}
 
-	public function test_can_get_uneven_number_of_entries() {
-		$entries = $this->client->entries()->fetchAllEntries([], 456);
+	public function test_can_use_continuation_token() {
+
+		$entries = $this->client->entries()->fetchAllEntries([], 15);
 
 		$this->assertInstanceOf('Illuminate\Support\Collection', $entries);
-		$this->assertEquals(456, $entries->count());
+		$this->assertEquals(15, $entries->count());
+		$this->assertInstanceOf('Clay\CLP\Structs\Entry', $entries->first());
+
+		$continuationToken = $entries->continuationToken ?? null;
+
+		$this->assertNotNull($continuationToken);
+
+		$nextEntries = $this->client->entries()->fetchAllEntries([], 15, $continuationToken);
+
+		$this->assertInstanceOf('Illuminate\Support\Collection', $nextEntries);
+		$this->assertEquals(15, $nextEntries->count());
+		$this->assertInstanceOf('Clay\CLP\Structs\Entry', $nextEntries->first());
+
+		$this->assertNotEquals($nextEntries->first()->getId(), $entries->first()->getId());
+
+	}
+
+	public function test_can_get_uneven_number_of_entries() {
+		$entries = $this->client->entries()->fetchAllEntries([], 219);
+
+		$this->assertInstanceOf('Illuminate\Support\Collection', $entries);
+		$this->assertEquals(219, $entries->count());
 		$this->assertInstanceOf('Clay\CLP\Structs\Entry', $entries->first());
 	}
 
@@ -92,10 +114,10 @@ class EntriesAPITest extends CLPTestCase {
 		$cutoffDate = Carbon::parse('2019-01-01 12:00:00');
 		$collectionID = $this->config->get('clp.test.collection_id');
 
-		$entries = $this->client->entries()->fetchEntriesAfterTimestamp($cutoffDate, 256, ["collection_id eq '{$collectionID}'"]);
+		$entries = $this->client->entries()->fetchEntriesAfterTimestamp($cutoffDate, 128, ["collection_id eq '{$collectionID}'"]);
 
 		$this->assertInstanceOf('Illuminate\Support\Collection', $entries);
-		$this->assertEquals(256, $entries->count());
+		$this->assertEquals(128, $entries->count());
 		$this->assertInstanceOf('Clay\CLP\Structs\Entry', $entries->first());
 
 		$entries->each(function ($entry) use ($cutoffDate, $collectionID) { /* @var $entry \Clay\CLP\Structs\Entry */

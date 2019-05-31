@@ -18,24 +18,24 @@ use Illuminate\Contracts\Support\Arrayable;
 
 class Entry implements Arrayable {
 
-	protected $id;
-	protected $event_category;
-	protected $event_detail;
-	protected $utc_date_time;
-	protected $local_date_time;
-	protected $lock_id;
-	protected $lock_customer_reference;
-	protected $lock_mac_address;
-	protected $accessor_id;
-	protected $iq_id;
-	protected $iq_customer_reference;
-	protected $iq_mac_address;
-	protected $iq_revision;
-	protected $collection_id;
-	protected $collection_customer_reference;
-	protected $exit_requested;
-	protected $access_by;
-	protected $access_detail;
+	public $id;
+	public $event_category;
+	public $event_detail;
+	public $utc_date_time;
+	public $local_date_time;
+	public $lock_id;
+	public $lock_customer_reference;
+	public $lock_mac_address;
+	public $accessor_id;
+	public $iq_id;
+	public $iq_customer_reference;
+	public $iq_mac_address;
+	public $iq_revision;
+	public $collection_id;
+	public $collection_customer_reference;
+	public $exit_requested;
+	public $access_by;
+	public $access_detail;
 
 	public function __construct(array $apiData = []) {
 		$this->id = $apiData['id'] ?? null;

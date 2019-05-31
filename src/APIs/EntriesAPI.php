@@ -48,18 +48,20 @@ class EntriesAPI extends AbstractAPI {
 	/**
 	 * @param array $filters
 	 * @param int $max
+	 * @param string|null $continuationToken
 	 * @return Collection
 	 * @throws \Clay\CLP\Exceptions\AccessNotAllowed
 	 * @throws \Clay\CLP\Exceptions\EmptyResponseFromServer
 	 * @throws \Clay\CLP\Exceptions\EndpointNotFound
 	 * @throws \Clay\CLP\Exceptions\HttpRequestError
-	 * @throws \Exception
 	 */
-	public function fetchAllEntries($filters = [], int $max = 1000) : Collection {
+	public function fetchAllEntries($filters = [], int $max = 1000, ?string $continuationToken = null) : Collection {
 
 		$fetched = 0;
 		$results = collect([]);
-		$continuationTokenHeader = null;
+		$continuationTokenHeader = is_null($continuationToken)
+			? null
+			: "CLP-Continuation-Token: {$continuationToken}";
 
 		while($fetched < $max) {
 
@@ -81,10 +83,14 @@ class EntriesAPI extends AbstractAPI {
 			$continuationTokenHeader = "CLP-Continuation-Token: {$batch->content->continuation_token}";
 		}
 
-		return collect($results->take($max))
+		$collection = collect($results->take($max))
 			->map(function ($item) {
 				return new Entry((array) $item);
 			});
+
+		$collection->continuationToken = $batch->content->continuation_token ?? null;
+
+		return $collection;
 	}
 
 	/**

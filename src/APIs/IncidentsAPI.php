@@ -55,11 +55,13 @@ class IncidentsAPI extends AbstractAPI {
 	 * @throws \Clay\CLP\Exceptions\HttpRequestError
 	 * @throws \Exception
 	 */
-	public function fetchAllIncidents($filters = [], int $max = 1000) : Collection {
+	public function fetchAllIncidents($filters = [], int $max = 1000, ?string $continuationToken = null) : Collection {
 
 		$fetched = 0;
 		$results = collect([]);
-		$continuationTokenHeader = null;
+		$continuationTokenHeader = is_null($continuationToken)
+			? null
+			: "CLP-Continuation-Token: {$continuationToken}";
 
 		while($fetched < $max) {
 
@@ -81,10 +83,14 @@ class IncidentsAPI extends AbstractAPI {
 			$continuationTokenHeader = "CLP-Continuation-Token: {$batch->content->continuation_token}";
 		}
 
-		return collect($results->take($max))
+		$collection = collect($results->take($max))
 			->map(function ($item) {
 				return new Incident((array) $item);
 			});
+
+		$collection->continuationToken = $batch->content->continuation_token ?? null;
+
+		return $collection;
 	}
 
 	/**
