@@ -36,7 +36,7 @@ class VaultClientTest extends TestCase {
 		$accessToken = $this->client->provideVaultToken();
 
 		$this->assertIsString($accessToken->getAccessToken());
-		$this->assertEquals(36, strlen($accessToken->getAccessToken()));
+		$this->assertEquals(26, strlen($accessToken->getAccessToken()));
 		$this->assertFalse($accessToken->hasExpired());
 
 	}
