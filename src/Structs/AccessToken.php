@@ -16,8 +16,9 @@ namespace Clay\CLP\Structs;
 
 use Carbon\Carbon;
 use Illuminate\Contracts\Support\Arrayable;
+use Serializable;
 
-class AccessToken implements Arrayable {
+class AccessToken implements Arrayable, Serializable {
 
 	/**
 	 * The leeway, in seconds, to say that a token is expired
@@ -76,4 +77,11 @@ class AccessToken implements Arrayable {
 		];
 	}
 
+	public function serialize() {
+		return serialize($this);
+	}
+
+	public function unserialize($serialized) {
+		return unserialize($serialized);
+	}
 }

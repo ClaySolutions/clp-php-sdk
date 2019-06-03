@@ -21,6 +21,8 @@ use Illuminate\Support\ServiceProvider;
 
 class CLPServiceProvider extends ServiceProvider {
 
+	const TOKEN_CACHE_KEY = 'clay/clp-php-sdk/auth_token';
+
 	public function register() {
 
 		$this->app->singleton(IdentityServerClient::class, function ($app) {
@@ -33,12 +35,33 @@ class CLPServiceProvider extends ServiceProvider {
 
 		$this->app->singleton(CLPClient::class, function ($app) {
 
-			$client = new CLPClient($app->make('config'));
+			$config = $app->make('config'); /* @var $config \Illuminate\Contracts\Config\Repository */
+			$cache = $app->make('cache'); /* @var $cache \Illuminate\Contracts\Cache\Repository */
+
+			$isCacheEnabled = $config->get('clp.service.enable_token_cache', false);
+
+			$client = new CLPClient($config);
 
 			$identityServer = $app->make(IdentityServerClient::class); /* @var $identityServer \Clay\CLP\Clients\IdentityServerClient */
 
-			$client->setAuthorizationHeaderProvider(function () use ($identityServer) {
-				return $identityServer->provideAccessToken()->generateAuthorizationHeader();
+			$client->setAuthorizationHeaderProvider(function () use ($identityServer, $isCacheEnabled, $cache) {
+
+				if($isCacheEnabled) {
+					$authToken = $cache->get(self::TOKEN_CACHE_KEY, null); /* @var $authToken \Clay\CLP\Structs\AccessToken */
+
+					if(!is_null($authToken)) {
+						return $authToken->generateAuthorizationHeader();
+					}
+				}
+
+				$authToken = $identityServer->provideAccessToken();
+
+				if($isCacheEnabled) {
+					$cache->put(self::TOKEN_CACHE_KEY, $authToken, $authToken->getExpiresIn());
+				}
+
+				return $authToken->generateAuthorizationHeader();
+
 			});
 
 			return $client;
