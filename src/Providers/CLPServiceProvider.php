@@ -22,6 +22,7 @@ use Illuminate\Support\ServiceProvider;
 class CLPServiceProvider extends ServiceProvider {
 
 	const TOKEN_CACHE_KEY = 'clay/clp-php-sdk/auth_token';
+	const TOKEN_CACHE_LEEWAY = 20;
 
 	public function register() {
 
@@ -46,21 +47,22 @@ class CLPServiceProvider extends ServiceProvider {
 
 			$client->setAuthorizationHeaderProvider(function () use ($identityServer, $isCacheEnabled, $cache) {
 
-				if($isCacheEnabled) {
-					$authToken = $cache->get(self::TOKEN_CACHE_KEY, null); /* @var $authToken \Clay\CLP\Structs\AccessToken */
-
-					if(!is_null($authToken)) {
-						return $authToken->generateAuthorizationHeader();
-					}
+				if(!$isCacheEnabled) {
+					return $identityServer->provideAccessToken()->generateAuthorizationHeader();
 				}
 
-				$authToken = $identityServer->provideAccessToken();
+				$cachedToken = $cache->get(self::TOKEN_CACHE_KEY, null); /* @var $cachedToken \Clay\CLP\Structs\AccessToken */
 
-				if($isCacheEnabled) {
-					$cache->put(self::TOKEN_CACHE_KEY, $authToken, $authToken->getExpiresIn());
+				if(!is_null($cachedToken) && !$cachedToken->hasExpired()) {
+					return $cachedToken->generateAuthorizationHeader();
 				}
 
-				return $authToken->generateAuthorizationHeader();
+				$generatedToken = $identityServer->provideAccessToken();
+
+				$cacheTTL = $generatedToken->getExpiresIn() - self::TOKEN_CACHE_LEEWAY;
+				$cache->put(self::TOKEN_CACHE_KEY, $generatedToken, $cacheTTL);
+
+				return $generatedToken->generateAuthorizationHeader();
 
 			});
 
