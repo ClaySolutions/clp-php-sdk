@@ -14,7 +14,9 @@
 namespace Clay\CLP\Structs;
 
 
-class IQNetworkAdapter {
+use Illuminate\Contracts\Support\Arrayable;
+
+class IQNetworkAdapter implements Arrayable {
 
 	const TYPE_UNKNOWN = "unknown";
 	const TYPE_M2M = "m2m";
@@ -32,5 +34,15 @@ class IQNetworkAdapter {
 		$this->status = $apiData['status'] ?? null;
 		$this->macAddress = $apiData['mac_address'] ?? null;
 	}
+
+	public function toArray() {
+		return [
+			'type' => $this->type,
+			'priority' => $this->priority,
+			'status' => $this->status,
+			'mac_address' => $this->macAddress,
+		];
+	}
+
 
 }

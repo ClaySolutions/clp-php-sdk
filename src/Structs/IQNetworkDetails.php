@@ -14,7 +14,9 @@
 namespace Clay\CLP\Structs;
 
 
-class IQNetworkDetails {
+use Illuminate\Contracts\Support\Arrayable;
+
+class IQNetworkDetails implements Arrayable {
 
 	protected $rfLastUpdate;
 	protected $rfChannel;
@@ -61,5 +63,14 @@ class IQNetworkDetails {
 	public function getWifiAdapter() : ?IQNetworkAdapter {
 		return $this->networkAdapters->get(IQNetworkAdapter::TYPE_WIFI, null);
 	}
+
+	public function toArray() {
+		return [
+			'rf_last_update' => $this->rfLastUpdate,
+			'rf_channel' => $this->rfChannel,
+			'network_adapters' => $this->networkAdapters,
+		];
+	}
+
 
 }
