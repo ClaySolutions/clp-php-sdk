@@ -17,6 +17,7 @@ namespace Clay\CLP\APIs;
 use Clay\CLP\Structs\IQ;
 use Clay\CLP\Structs\IQHardware;
 use Clay\CLP\Structs\IQHardwareTree;
+use Clay\CLP\Structs\IQNetworkDetails;
 use Clay\CLP\Structs\NewIQRegistration;
 use Clay\CLP\Utilities\AbstractAPI;
 use Clay\CLP\Utilities\MultiPageResponse;
@@ -50,6 +51,20 @@ class IQAPI extends AbstractAPI {
 	public function getIQ(string $iqID) : IQ {
 		$response = $this->client->get('iqs/' . $iqID);
 		return new IQ((array) $response->content);
+	}
+
+	/**
+	 * Gets the network details (adapter types, status and rf info) of an IQ
+	 * @param string $iqID
+	 * @return IQNetworkDetails
+	 * @throws \Clay\CLP\Exceptions\AccessNotAllowed
+	 * @throws \Clay\CLP\Exceptions\EmptyResponseFromServer
+	 * @throws \Clay\CLP\Exceptions\EndpointNotFound
+	 * @throws \Clay\CLP\Exceptions\HttpRequestError
+	 */
+	public function getIQNetworkDetails(string $iqID) : IQNetworkDetails{
+		$response = $this->client->get('iqs/' . $iqID . '/details');
+		return new IQNetworkDetails((array) $response->content);
 	}
 
 	/**

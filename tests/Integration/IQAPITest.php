@@ -36,6 +36,27 @@ class IQAPITest extends CLPTestCase {
 		$this->assertInstanceOf('Clay\CLP\Structs\IQ', $iq);
 	}
 
+	public function test_can_get_iq_network_details() {
+		$existingIQs = $this->client->iqs()->getIQs();
+		$iq = $this->client->iqs()->getIQ($existingIQs->items()->first()->getID());
+
+		$this->assertInstanceOf('Clay\CLP\Structs\IQ', $iq);
+
+		$networkDetails = $this->client->iqs()->getIQNetworkDetails($iq->getID());
+
+		$this->assertInstanceOf('Clay\CLP\Structs\IQNetworkDetails', $networkDetails);
+		$this->assertInstanceOf('Illuminate\Support\Collection', $networkDetails->getNetworkAdapters());
+		$this->assertInstanceOf('Clay\CLP\Structs\IQNetworkAdapter', $networkDetails->getNetworkAdapters()->first());
+
+		$this->assertEquals(3, $networkDetails->getNetworkAdapters()->count());
+		$this->assertTrue($networkDetails->getNetworkAdapters()->contains('status', 'active'));
+
+		$this->assertTrue($networkDetails->getNetworkAdapters()->contains('type', 'm2m'));
+		$this->assertTrue($networkDetails->getNetworkAdapters()->contains('type', 'ethernet'));
+		$this->assertTrue($networkDetails->getNetworkAdapters()->contains('type', 'wifi'));
+
+	}
+
 	public function test_can_find_iq_by_mac_address() {
 		$macAddress = $this->config->get('clp.test.iq.mac');
 
