@@ -18,12 +18,12 @@ use Carbon\Carbon;
 use Illuminate\Contracts\Support\Arrayable;
 use Serializable;
 
-class AccessToken implements Arrayable, Serializable {
+class AccessToken implements Arrayable {
 
 	/**
 	 * The leeway, in seconds, to say that a token is expired
 	 */
-	const LEEWAY = 5;
+	const LEEWAY = 20;
 
 	protected $accessToken;
 	protected $tokenType;
@@ -36,7 +36,7 @@ class AccessToken implements Arrayable, Serializable {
 
 	public function __construct(array $generatedAccessToken, Carbon $generatedAt) {
 		$this->accessToken = $generatedAccessToken['access_token'] ?? null;
-		$this->tokenType = $generatedAccessToken['token_type'] ?? null;
+		$this->tokenType = $generatedAccessToken['token_type'] ?? null ;
 		$this->expiresIn = $generatedAccessToken['expires_in'] ?? null;
 		$this->generatedAt = $generatedAt;
 	}
@@ -49,8 +49,8 @@ class AccessToken implements Arrayable, Serializable {
 		return $this->tokenType;
 	}
 
-	public function getExpiresIn() : ?int {
-		return $this->expiresIn ? intval($this->expiresIn) : null;
+	public function getExpiresIn() : int {
+		return $this->expiresIn ? intval($this->expiresIn) : 0;
 	}
 
 	public function generateAuthorizationHeader() : string {
@@ -64,7 +64,7 @@ class AccessToken implements Arrayable, Serializable {
 	public function hasExpired() : bool {
 		if($this->generatedAt === null) return true;
 		return $this->generatedAt
-			->addSeconds($this->getExpiresIn() - self::LEEWAY)
+			->addSeconds(($this->getExpiresIn() ?? 0) - self::LEEWAY)
 			->isPast();
 	}
 
@@ -72,16 +72,32 @@ class AccessToken implements Arrayable, Serializable {
 		return [
 			'accessToken' => $this->accessToken,
 			'tokenType' => $this->tokenType,
-			'expiresIn' => $this->expiresIn ? $this->expiresIn->toDateTimeString() : null,
-			'generatedAt' => $this->generatedAt ? $$this->generatedAt->toDateTimeSTring() : null,
+			'expiresIn' => $this->expiresIn ?? 0,
+			'generatedAt' => $this->generatedAt ? $this->generatedAt->toDateTimeString() : null,
 		];
 	}
 
-	public function serialize() {
-		return serialize($this);
+	public function serialize() : string {
+		return json_encode($this->toArray());
 	}
 
-	public function unserialize($serialized) {
-		return unserialize($serialized);
+	public static function unserialize(?string $serialized) : ?self {
+
+		if(is_null($serialized)) return null;
+		if(!$serialized) return null;
+
+		$payload = json_decode($serialized, true);
+
+		if(!$payload) return null;
+		if(!isset($payload['accessToken'])) return null;
+
+		$generatedAt = Carbon::parse($payload['generatedAt']);
+		$tokenProperties = [
+			'access_token' => $payload['accessToken'],
+			'token_type' => $payload['tokenType'] ?? 'Bearer',
+			'expires_in' => intval($payload['expiresIn']) ?? 0,
+		];
+
+		return new self($tokenProperties, $generatedAt);
 	}
 }
