@@ -126,6 +126,19 @@ class TimeSchedule implements Arrayable {
 		$this->sunday = $sunday;
 	}
 
+	public function setAllWorkdaysEnabled(bool $workdays) : void {
+		$this->monday = $workdays;
+		$this->tuesday = $workdays;
+		$this->wednesday = $workdays;
+		$this->thursday = $workdays;
+		$this->friday = $workdays;
+	}
+
+	public function setAllWeekendsEnabled(bool $weekends) : void {
+		$this->saturday = $weekends;
+		$this->sunday = $weekends;
+	}
+
 	public function getStartTime(): ?string {
 		return $this->start_time;
 	}
@@ -143,7 +156,9 @@ class TimeSchedule implements Arrayable {
 	}
 
 	public function getStartDate(): ?string {
-		return $this->start_date;
+		return is_string($this->start_date)
+			? substr($this->start_date, 0, 10)
+			: null;
 	}
 
 	public function setStartDate(?string $start_date): void {
@@ -151,11 +166,45 @@ class TimeSchedule implements Arrayable {
 	}
 
 	public function getEndDate(): ?string {
-		return $this->end_date;
+		return is_string($this->end_date)
+			? substr($this->end_date, 0, 10)
+			: null;
 	}
 
 	public function setEndDate(?string $end_date): void {
 		$this->end_date = $end_date;
+	}
+
+	public static function allTime() : TimeSchedule {
+		return new TimeSchedule([
+			'monday' => true,
+			'tuesday' => true,
+			'wednesday' => true,
+			'thursday' => true,
+			'friday' => true,
+			'saturday' => true,
+			'sunday' => true,
+			'start_time' => '00:00:00',
+			'end_time' => '23:59:59',
+			'start_date' => null,
+			'end_date' => null,
+		]);
+	}
+
+	public static function businessHours($startTime = '08:00:00', $endTime = '18:00:00') : TimeSchedule {
+		return new TimeSchedule([
+			'monday' => true,
+			'tuesday' => true,
+			'wednesday' => true,
+			'thursday' => true,
+			'friday' => true,
+			'saturday' => false,
+			'sunday' => false,
+			'start_time' => $startTime,
+			'end_time' => $endTime,
+			'start_date' => null,
+			'end_date' => null,
+		]);
 	}
 
 }
