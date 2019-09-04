@@ -67,7 +67,7 @@ class EntriesAPI extends AbstractAPI {
 
 			$batch = $this->client->get('entries' .
 				$this->buildODataFiltersParameter($filters) .
-				"&\$inlinecount=allpages" .
+				"&ref=phpsdk" .
 				"&\$orderby=local_date_time%20desc" .
 				"&\$top={$max}",
 				!is_null($continuationTokenHeader) ? [$continuationTokenHeader] : []

@@ -15,24 +15,54 @@ namespace Tests\Integration;
 
 
 use Carbon\Carbon;
+use Clay\CLP\Structs\Entry;
 use Tests\CLPTestCase;
 
 class EntriesAPITest extends CLPTestCase {
+
+	private function assertIsValidEntry(Entry $entry) {
+		$this->assertInstanceOf('Clay\CLP\Structs\Entry', $entry);
+		$this->assertNotNull($entry->collection_id);
+		$this->assertNotNull($entry->event_category);
+		$this->assertNotNull($entry->iq_id);
+		$this->assertNotNull($entry->id);
+		$this->assertNotNull($entry->utc_date_time);
+		$this->assertNotNull($entry->local_date_time);
+
+		$this->assertInstanceOf('Carbon\Carbon', Carbon::parse($entry->utc_date_time));
+		$this->assertInstanceOf('Carbon\Carbon', Carbon::parse($entry->local_date_time));
+	}
 
 	public function test_can_get_entries() {
 		$entries = $this->client->entries()->fetchEntries();
 
 		$this->assertInstanceOf('Illuminate\Support\Collection', $entries);
-		$this->assertEquals(100, $entries->count());
-		$this->assertInstanceOf('Clay\CLP\Structs\Entry', $entries->first());
+		$this->assertGreaterThan(0, $entries->count());
+
+		$this->assertIsValidEntry($entries->first());
+		$this->assertIsValidEntry($entries->last());
+
+		$this->assertEquals($entries->pluck('id')->unique()->count(), $entries->count());
+
+		$entries->each(function ($entry) {
+			$this->assertIsValidEntry($entry);
+		});
 	}
 
 	public function test_can_get_all_entries() {
-		$entries = $this->client->entries()->fetchAllEntries([], 200);
+		$entries = $this->client->entries()->fetchAllEntries([], 600);
 
 		$this->assertInstanceOf('Illuminate\Support\Collection', $entries);
-		$this->assertEquals(200, $entries->count());
-		$this->assertInstanceOf('Clay\CLP\Structs\Entry', $entries->first());
+		$this->assertEquals(600, $entries->count());
+
+		$this->assertIsValidEntry($entries->first());
+		$this->assertIsValidEntry($entries->last());
+
+		$this->assertEquals($entries->pluck('id')->unique()->count(), $entries->count());
+
+		$entries->each(function ($entry) {
+			$this->assertIsValidEntry($entry);
+		});
 
 	}
 
@@ -56,6 +86,12 @@ class EntriesAPITest extends CLPTestCase {
 
 		$this->assertNotEquals($nextEntries->first()->getId(), $entries->first()->getId());
 
+		$this->assertEquals($entries->pluck('id')->unique()->count(), $entries->count());
+
+		$entries->each(function ($entry) {
+			$this->assertIsValidEntry($entry);
+		});
+
 	}
 
 	public function test_can_get_uneven_number_of_entries() {
@@ -64,6 +100,12 @@ class EntriesAPITest extends CLPTestCase {
 		$this->assertInstanceOf('Illuminate\Support\Collection', $entries);
 		$this->assertEquals(219, $entries->count());
 		$this->assertInstanceOf('Clay\CLP\Structs\Entry', $entries->first());
+
+		$this->assertEquals($entries->pluck('id')->unique()->count(), $entries->count());
+
+		$entries->each(function ($entry) {
+			$this->assertIsValidEntry($entry);
+		});
 	}
 
 	public function test_can_filter_by_collection() {
@@ -76,9 +118,11 @@ class EntriesAPITest extends CLPTestCase {
 		$this->assertEquals(150, $entries->count());
 		$this->assertInstanceOf('Clay\CLP\Structs\Entry', $entries->first());
 
+		$this->assertEquals($entries->pluck('id')->unique()->count(), $entries->count());
+
 		$entries->each(function ($entry) use ($collectionID) {
 
-			$this->assertInstanceOf('Clay\CLP\Structs\Entry', $entry);
+			$this->assertIsValidEntry($entry);
 			$this->assertEquals($collectionID, $entry->getCollectionID());
 
 		});
@@ -96,9 +140,12 @@ class EntriesAPITest extends CLPTestCase {
 		$this->assertEquals(150, $entries->count());
 		$this->assertInstanceOf('Clay\CLP\Structs\Entry', $entries->first());
 
+		$this->assertEquals($entries->pluck('id')->unique()->count(), $entries->count());
+
 		$entries->each(function ($entry) use ($cutoffDate) { /* @var $entry \Clay\CLP\Structs\Entry */
 
 			$this->assertInstanceOf('Clay\CLP\Structs\Entry', $entry);
+			$this->assertIsValidEntry($entry);
 
 			$date = Carbon::parse($entry->getUtcDateTime());
 
@@ -120,9 +167,12 @@ class EntriesAPITest extends CLPTestCase {
 		$this->assertEquals(128, $entries->count());
 		$this->assertInstanceOf('Clay\CLP\Structs\Entry', $entries->first());
 
+		$this->assertEquals($entries->pluck('id')->unique()->count(), $entries->count());
+
 		$entries->each(function ($entry) use ($cutoffDate, $collectionID) { /* @var $entry \Clay\CLP\Structs\Entry */
 
 			$this->assertInstanceOf('Clay\CLP\Structs\Entry', $entry);
+			$this->assertIsValidEntry($entry);
 
 			$date = Carbon::parse($entry->getUtcDateTime());
 
@@ -144,9 +194,12 @@ class EntriesAPITest extends CLPTestCase {
 		$this->assertGreaterThan(0, $entries->count());
 		$this->assertInstanceOf('Clay\CLP\Structs\Entry', $entries->first());
 
+		$this->assertEquals($entries->pluck('id')->unique()->count(), $entries->count());
+
 		$entries->each(function ($entry) use ($cutoffDate) { /* @var $entry \Clay\CLP\Structs\Entry */
 
 			$this->assertInstanceOf('Clay\CLP\Structs\Entry', $entry);
+			$this->assertIsValidEntry($entry);
 
 			$date = Carbon::parse($entry->getUtcDateTime());
 

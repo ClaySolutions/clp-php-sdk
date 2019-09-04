@@ -67,7 +67,7 @@ class IncidentsAPI extends AbstractAPI {
 
 			$batch = $this->client->get('incidents' .
 				$this->buildODataFiltersParameter($filters) .
-				"&\$inlinecount=allpages" .
+				"&ref=phpsdk" .
 				"&\$orderby=local_date_time%20desc" .
 				"&\$top={$max}",
 				!is_null($continuationTokenHeader) ? [$continuationTokenHeader] : []

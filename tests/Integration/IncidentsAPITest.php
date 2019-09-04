@@ -15,9 +15,23 @@ namespace Tests\Integration;
 
 
 use Carbon\Carbon;
+use Clay\CLP\Structs\Incident;
 use Tests\CLPTestCase;
 
 class IncidentsAPITest extends CLPTestCase {
+
+	private function assertIsValidIncident(Incident $entry) {
+		$this->assertInstanceOf('Clay\CLP\Structs\Incident', $entry);
+		$this->assertNotNull($entry->collection_id);
+		$this->assertNotNull($entry->event_category);
+		$this->assertNotNull($entry->iq_id);
+		$this->assertNotNull($entry->id);
+		$this->assertNotNull($entry->utc_date_time);
+		$this->assertNotNull($entry->local_date_time);
+
+		$this->assertInstanceOf('Carbon\Carbon', Carbon::parse($entry->utc_date_time));
+		$this->assertInstanceOf('Carbon\Carbon', Carbon::parse($entry->local_date_time));
+	}
 
 	public function test_can_get_incidents() {
 		$incidents = $this->client->incidents()->fetchIncidents();
@@ -33,6 +47,12 @@ class IncidentsAPITest extends CLPTestCase {
 		$this->assertInstanceOf('Illuminate\Support\Collection', $incidents);
 		$this->assertEquals(200, $incidents->count());
 		$this->assertInstanceOf('Clay\CLP\Structs\Incident', $incidents->first());
+
+		$this->assertEquals($incidents->pluck('id')->unique()->count(), $incidents->count());
+
+		$incidents->each(function ($incident) {
+			$this->assertIsValidIncident($incident);
+		});
 
 	}
 
@@ -55,6 +75,12 @@ class IncidentsAPITest extends CLPTestCase {
 
 		$this->assertNotEquals($nextIncidents->first()->id, $incidents->first()->id);
 
+		$this->assertEquals($incidents->pluck('id')->unique()->count(), $incidents->count());
+
+		$incidents->each(function ($incident) {
+			$this->assertIsValidIncident($incident);
+		});
+
 	}
 
 	public function test_can_get_uneven_number_of_incidents() {
@@ -63,6 +89,12 @@ class IncidentsAPITest extends CLPTestCase {
 		$this->assertInstanceOf('Illuminate\Support\Collection', $incidents);
 		$this->assertEquals(128, $incidents->count());
 		$this->assertInstanceOf('Clay\CLP\Structs\Incident', $incidents->first());
+
+		$this->assertEquals($incidents->pluck('id')->unique()->count(), $incidents->count());
+
+		$incidents->each(function ($incident) {
+			$this->assertIsValidIncident($incident);
+		});
 	}
 
 	public function test_can_filter_by_collection() {
@@ -75,10 +107,12 @@ class IncidentsAPITest extends CLPTestCase {
 		$this->assertEquals(64, $incidents->count());
 		$this->assertInstanceOf('Clay\CLP\Structs\Incident', $incidents->first());
 
-		$incidents->each(function ($entry) use ($collectionID) {
+		$this->assertEquals($incidents->pluck('id')->unique()->count(), $incidents->count());
 
-			$this->assertInstanceOf('Clay\CLP\Structs\Incident', $entry);
-			$this->assertEquals($collectionID, $entry->getCollectionID());
+		$incidents->each(function ($incident) use ($collectionID) {
+
+			$this->assertIsValidIncident($incident);
+			$this->assertEquals($collectionID, $incident->getCollectionID());
 
 		});
 
@@ -95,17 +129,19 @@ class IncidentsAPITest extends CLPTestCase {
 		$this->assertEquals(64, $incidents->count());
 		$this->assertInstanceOf('Clay\CLP\Structs\Incident', $incidents->first());
 
-		$incidents->each(function ($entry) use ($cutoffDate) { /* @var $entry \Clay\CLP\Structs\Incident */
+		$this->assertEquals($incidents->pluck('id')->unique()->count(), $incidents->count());
 
-			$this->assertInstanceOf('Clay\CLP\Structs\Incident', $entry);
+		$incidents->each(function ($incident) use ($cutoffDate) { /* @var $incident \Clay\CLP\Structs\Incident */
 
-			$date = Carbon::parse($entry->getUtcDateTime());
+			$this->assertIsValidIncident($incident);
+			$this->assertInstanceOf('Clay\CLP\Structs\Incident', $incident);
+
+			$date = Carbon::parse($incident->getUtcDateTime());
 
 			$this->assertInstanceOf('Carbon\Carbon', $date);
 			$this->assertTrue($date->gte($cutoffDate));
 
 		});
-
 	}
 
 	public function test_can_filter_by_date_and_collection() {
@@ -119,15 +155,19 @@ class IncidentsAPITest extends CLPTestCase {
 		$this->assertEquals(64, $incidents->count());
 		$this->assertInstanceOf('Clay\CLP\Structs\Incident', $incidents->first());
 
-		$incidents->each(function ($entry) use ($cutoffDate, $collectionID) { /* @var $entry \Clay\CLP\Structs\Incident */
+		$this->assertEquals($incidents->pluck('id')->unique()->count(), $incidents->count());
 
-			$this->assertInstanceOf('Clay\CLP\Structs\Incident', $entry);
+		$incidents->each(function ($incident) use ($cutoffDate, $collectionID) { /* @var $incident \Clay\CLP\Structs\Incident */
 
-			$date = Carbon::parse($entry->getUtcDateTime());
+			$this->assertInstanceOf('Clay\CLP\Structs\Incident', $incident);
+
+			$this->assertIsValidIncident($incident);
+
+			$date = Carbon::parse($incident->getUtcDateTime());
 
 			$this->assertInstanceOf('Carbon\Carbon', $date);
 			$this->assertTrue($date->gte($cutoffDate));
-			$this->assertEquals($collectionID, $entry->getCollectionID());
+			$this->assertEquals($collectionID, $incident->getCollectionID());
 
 		});
 
