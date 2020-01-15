@@ -82,6 +82,23 @@ class IQAPI extends AbstractAPI {
 
 	/**
 	 * @param string $iqID
+	 * @param string $timezoneIanaName
+	 * @return array
+	 * @throws \Clay\CLP\Exceptions\AccessNotAllowed
+	 * @throws \Clay\CLP\Exceptions\EmptyResponseFromServer
+	 * @throws \Clay\CLP\Exceptions\EndpointNotFound
+	 * @throws \Clay\CLP\Exceptions\HttpRequestError
+	 */
+	public function updateIQTimezone(string $iqID, string $timezoneIanaName) : array {
+		$response = $this->client->patch("iqs/{$iqID}", [
+			'time_zone' => $timezoneIanaName,
+		]);
+
+		return (array) $response->content;
+	}
+
+	/**
+	 * @param string $iqID
 	 * @return array|object
 	 * @throws \Clay\CLP\Exceptions\AccessNotAllowed
 	 * @throws \Clay\CLP\Exceptions\EmptyResponseFromServer
