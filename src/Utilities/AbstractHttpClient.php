@@ -66,8 +66,8 @@ abstract class AbstractHttpClient {
 	 * @return string
 	 */
 	public function generateEndpointURL(string $path) : string {
-        if($this->isFullURL($path)) return $this->strFinish($path, '/');
-        return $this->strFinish($this->getEndpointBaseURL(), '/') . $path;
+        if($this->isFullURL($path)) return Str::finish($path, '/');
+        return Str::finish($this->getEndpointBaseURL(), '/') . $path;
 	}
 
 	/**
@@ -295,17 +295,4 @@ abstract class AbstractHttpClient {
 
 	}
 
-    /**
-     * @param string $path
-     * @param string $cap
-     * @return string
-     */
-    private function strFinish(string $path = '', string $cap = '')
-    {
-        if (function_exists('str_finish')) {
-            return str_finish($path, $cap);
-        } else if (class_exists('\Illuminate\Support\Str')) {
-            Str::finish($path, $cap);
-        }
-    }
 }
