@@ -19,6 +19,7 @@ use Clay\CLP\Exceptions\EndpointNotFound;
 use Clay\CLP\Exceptions\HttpRequestError;
 use Closure;
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Support\Str;
 use Ixudra\Curl\Builder;
 use Ixudra\Curl\CurlService;
 
@@ -65,8 +66,8 @@ abstract class AbstractHttpClient {
 	 * @return string
 	 */
 	public function generateEndpointURL(string $path) : string {
-		if($this->isFullURL($path)) return str_finish($path, '/');
-		return str_finish($this->getEndpointBaseURL(), '/') . $path;
+        if($this->isFullURL($path)) return $this->strFinish($path, '/');
+        return $this->strFinish($this->getEndpointBaseURL(), '/') . $path;
 	}
 
 	/**
@@ -293,4 +294,18 @@ abstract class AbstractHttpClient {
 		return $this->parseResponse($response, $url);
 
 	}
+
+    /**
+     * @param string $path
+     * @param string $cap
+     * @return string
+     */
+    private function strFinish(string $path = '', string $cap = '')
+    {
+        if (function_exists('str_finish')) {
+            return str_finish($path, $cap);
+        } else if (class_exists('\Illuminate\Support\Str')) {
+            Str::finish($path, $cap);
+        }
+    }
 }
