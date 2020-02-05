@@ -17,6 +17,7 @@ use Clay\CLP\Exceptions\AccessNotAllowed;
 use Clay\CLP\Exceptions\EmptyResponseFromServer;
 use Clay\CLP\Exceptions\EndpointNotFound;
 use Clay\CLP\Exceptions\HttpRequestError;
+use Closure;
 use Illuminate\Contracts\Config\Repository;
 use Ixudra\Curl\Builder;
 use Ixudra\Curl\CurlService;
@@ -31,7 +32,7 @@ abstract class AbstractHttpClient {
 
 	/**
 	 * The CURL service
-	 * @var \Ixudra\Curl\CurlService
+	 * @var CurlService
 	 */
 	protected $curl;
 
@@ -43,7 +44,7 @@ abstract class AbstractHttpClient {
 
 	/**
 	 * The auth header provider closure.
-	 * @var \Closure|null
+	 * @var Closure|null
 	 */
 	protected $authorizationHeaderProvider = null;
 
@@ -91,9 +92,9 @@ abstract class AbstractHttpClient {
 	/**
 	 * Sets a callback to generate an authorization header for each request.
 	 * The authorization header is expected to generate the string following 'Authorization:' on the header.
-	 * @param \Closure $closure
+	 * @param Closure $closure
 	 */
-	public function setAuthorizationHeaderProvider(\Closure $closure) {
+	public function setAuthorizationHeaderProvider(Closure $closure) {
 		$this->authorizationHeaderProvider = $closure;
 	}
 
@@ -127,8 +128,8 @@ abstract class AbstractHttpClient {
 			$request->withData($payload);
 		}
 
-		if($this->config->get('clp.debug_mode') === 'on') {
-			$request->enableDebug(__DIR__ . '../../../debug.log');
+		if($this->config->get('clp.debug_curl') === true) {
+			$request->enableDebug($this->config->get('clp.debug_curl_file'));
 		}
 
 		return $request
