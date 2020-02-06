@@ -24,7 +24,9 @@ class TestConfigurationLoadingTest extends TestCase {
 		$this->assertIsString($this->config->get('clp.api_version'));
 		$this->assertIsString($this->config->get('clp.client_id'));
 		$this->assertIsString($this->config->get('clp.client_secret'));
-
+		$debugCurlConf = $this->config->get('clp.debug_curl');
+        $this->assertIsBool($debugCurlConf === 'true' || $debugCurlConf === 'false' ? true : $debugCurlConf);
+        $this->assertIsString($this->config->get('clp.debug_curl_file'));
 	}
 
 }
