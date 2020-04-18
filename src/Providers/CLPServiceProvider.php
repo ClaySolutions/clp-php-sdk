@@ -19,34 +19,36 @@ use Clay\CLP\Clients\IdentityServerClient;
 use Clay\CLP\Clients\VaultClient;
 use Clay\CLP\Structs\AccessToken;
 use Illuminate\Support\ServiceProvider;
+use \Illuminate\Contracts\Config\Repository as ConfigRepository;
+use \Illuminate\Contracts\Cache\Repository as CacheRepository;
 
 class CLPServiceProvider extends ServiceProvider {
 
-	const TOKEN_CACHE_KEY = 'clay/clp-php-sdk@1.0.13/auth_token';
-	const TOKEN_CACHE_LEEWAY = 20;
+	public const TOKEN_CACHE_KEY = 'clay/clp-php-sdk@1.0.13/auth_token';
+	public const TOKEN_CACHE_LEEWAY = 20;
 
-	public function register() {
+	public function register(): void {
 
 		$this->app->singleton(IdentityServerClient::class, function ($app) {
-			return new IdentityServerClient($app->make('config'));
+			return new IdentityServerClient($this->app->make(ConfigRepository::class));
 		});
 
 		$this->app->singleton(VaultClient::class, function ($app) {
-			return new VaultClient($app->make('config'));
+			return new VaultClient($this->app->make(ConfigRepository::class));
 		});
 
 		$this->app->singleton(CLPClient::class, function ($app) {
 
-			$config = $app->make('config'); /* @var $config \Illuminate\Contracts\Config\Repository */
-			$cache = $app->make('cache'); /* @var $cache \Illuminate\Contracts\Cache\Repository */
+			$cache = $this->app->make(CacheRepository::class);
+			$config = $this->app->make(ConfigRepository::class);
 
 			$isCacheEnabled = $config->get('clp.service.enable_token_cache', false);
 
 			$client = new CLPClient($config);
 
-			$identityServer = $app->make(IdentityServerClient::class); /* @var $identityServer \Clay\CLP\Clients\IdentityServerClient */
+			$identityServer = $this->app->make(IdentityServerClient::class); /* @var $identityServer \Clay\CLP\Clients\IdentityServerClient */
 
-			$client->setAuthorizationHeaderProvider(function () use ($identityServer, $isCacheEnabled, $cache) {
+			$client->setAuthorizationHeaderProvider(static function () use ($identityServer, $isCacheEnabled, $cache) {
 
 				if(!$isCacheEnabled) {
 					return $identityServer->provideAccessToken()->generateAuthorizationHeader();
@@ -55,7 +57,7 @@ class CLPServiceProvider extends ServiceProvider {
 				$serializedCachedToken = $cache->get(self::TOKEN_CACHE_KEY, null);
 				$cachedToken = AccessToken::unserialize($serializedCachedToken); /* @var $cachedToken \Clay\CLP\Structs\AccessToken */
 
-				if(!is_null($cachedToken) && !$cachedToken->hasExpired()) {
+				if($cachedToken !== null && !$cachedToken->hasExpired()) {
 					return $cachedToken->generateAuthorizationHeader();
 				}
 
