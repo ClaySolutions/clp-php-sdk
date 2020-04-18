@@ -14,18 +14,26 @@
 namespace Tests;
 
 
-use Clay\CLP\Clients\CLPClient;
-use Clay\CLP\Clients\IdentityServerClient;
+use Clay\CLP\Clients\CLPService;
+use Clay\CLP\Clients\IdentityServerService;
+use Clay\CLP\Contracts\HttpClient;
+use Clay\CLP\Http\CurlHttpClient;
+use Clay\CLP\Structs\OAuthParameters;
 
 class CLPTestCase extends TestCase {
 
 	/**
-	 * @var CLPClient $client
+	 * @var CLPService $clp
 	 */
-	protected $client;
+	protected $clp;
 
 	/**
-	 * @var IdentityServerClient
+	 * @var HttpClient $httpClient
+	 */
+	protected $httpClient;
+
+	/**
+	 * @var IdentityServerService
 	 */
 	protected $identityServer;
 
@@ -33,12 +41,27 @@ class CLPTestCase extends TestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->identityServer = new IdentityServerClient($this->config);
+		$oauthParams = new OAuthParameters(
+			$this->config->get('clp.client_id'),
+			$this->config->get('clp.client_secret'),
+			'hardware_api'
+		);
 
-		$this->client = new CLPClient($this->config);
-		$this->client->setAuthorizationHeaderProvider(function () {
-			return $this->identityServer->provideAccessToken()->generateAuthorizationHeader();
-		});
+		$this->identityServer = new IdentityServerService(
+			$oauthParams,
+			new CurlHttpClient(
+				$this->config->get('clp.endpoints.identity_server', 'http://localhost/'),
+				['Accept' => 'application/json']
+			)
+		);
+
+		$this->httpClient = new CurlHttpClient(
+			$this->config->get('clp.endpoints.api', 'http://localhost/'),
+			['Accept' => 'application/json'],
+			$this->identityServer
+		);
+
+		$this->clp = new CLPService($this->httpClient);
 	}
 
 }

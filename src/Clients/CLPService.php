@@ -22,17 +22,27 @@ use Clay\CLP\APIs\IQAPI;
 use Clay\CLP\APIs\LockAPI;
 use Clay\CLP\APIs\RepeaterAPI;
 use Clay\CLP\APIs\TagAPI;
+use Clay\CLP\Contracts\HttpClient;
 use Clay\CLP\Utilities\AbstractAPI;
-use Clay\CLP\Utilities\AbstractHttpClient;
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
 
-class CLPClient extends AbstractHttpClient {
+final class CLPService {
+
+	/**
+	 * @var HttpClient
+	 */
+	private $client;
+
+	public function __construct(HttpClient $client) {
+		$this->client = $client;
+	}
 
 	/**
 	 * The API to interact with IQs.
 	 * @return IQAPI
 	 */
 	public function iqs() : AbstractAPI {
-		return IQAPI::getInstance($this);
+		return IQAPI::getInstance($this->client);
 	}
 
 	/**
@@ -40,7 +50,7 @@ class CLPClient extends AbstractHttpClient {
 	 * @return LockAPI
 	 */
 	public function locks() : AbstractAPI {
-		return LockAPI::getInstance($this);
+		return LockAPI::getInstance($this->client);
 	}
 
 	/**
@@ -48,7 +58,7 @@ class CLPClient extends AbstractHttpClient {
 	 * @return RepeaterAPI
 	 */
 	public function repeaters() : AbstractAPI {
-		return RepeaterAPI::getInstance($this);
+		return RepeaterAPI::getInstance($this->client);
 	}
 
 	/**
@@ -56,7 +66,7 @@ class CLPClient extends AbstractHttpClient {
 	 * @return TagAPI
 	 */
 	public function tags() : AbstractAPI {
-		return TagAPI::getInstance($this);
+		return TagAPI::getInstance($this->client);
 	}
 
 	/**
@@ -64,7 +74,7 @@ class CLPClient extends AbstractHttpClient {
 	 * @return AccessorAPI
 	 */
 	public function accessors() : AbstractAPI {
-		return AccessorAPI::getInstance($this);
+		return AccessorAPI::getInstance($this->client);
 	}
 
 	/**
@@ -72,7 +82,7 @@ class CLPClient extends AbstractHttpClient {
 	 * @return CollectionAPI
 	 */
 	public function collections() : AbstractAPI {
-		return CollectionAPI::getInstance($this);
+		return CollectionAPI::getInstance($this->client);
 	}
 
 	/**
@@ -80,7 +90,7 @@ class CLPClient extends AbstractHttpClient {
 	 * @return AccessGroupAPI
 	 */
 	public function accessGroups() : AbstractAPI {
-		return AccessGroupAPI::getInstance($this);
+		return AccessGroupAPI::getInstance($this->client);
 	}
 
 	/**
@@ -88,7 +98,7 @@ class CLPClient extends AbstractHttpClient {
 	 * @return EntriesAPI
 	 */
 	public function entries() : AbstractAPI {
-		return EntriesAPI::getInstance($this);
+		return EntriesAPI::getInstance($this->client);
 	}
 
 	/**
@@ -96,14 +106,6 @@ class CLPClient extends AbstractHttpClient {
 	 * @return IncidentsAPI
 	 */
 	public function incidents() : AbstractAPI {
-		return IncidentsAPI::getInstance($this);
-	}
-
-	/**
-	 * Returns the base endpoint URL.
-	 * @return string
-	 */
-	public function getEndpointBaseURL(): string {
-		return $this->config->get('clp.endpoints.api', 'http://localhost/');
+		return IncidentsAPI::getInstance($this->client);
 	}
 }

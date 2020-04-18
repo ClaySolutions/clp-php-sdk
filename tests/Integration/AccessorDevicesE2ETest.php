@@ -49,13 +49,13 @@ class AccessorDevicesE2ETest extends CLPTestCase {
 
 	public function test_can_create_list_and_delete_device_for_accessor() {
 
-		$accessor = $this->client->accessors()->createAccessor(new NewAccessor());
-		$device = $this->client->accessors()->createDevice($accessor->getID());
+		$accessor = $this->clp->accessors()->createAccessor(new NewAccessor());
+		$device = $this->clp->accessors()->createDevice($accessor->getID());
 
 		$this->assertInstanceOf('Clay\CLP\Structs\AccessorDevice', $device);
 		$this->assertNotNull($device->getID());
 
-		$devices = $this->client->accessors()->getDevices($accessor->getID());
+		$devices = $this->clp->accessors()->getDevices($accessor->getID());
 
 		// TODO: why does a newly-created accessor has several devices?
 
@@ -64,28 +64,28 @@ class AccessorDevicesE2ETest extends CLPTestCase {
 		$this->assertInstanceOf('Clay\CLP\Structs\AccessorDevice', $devices->items()->first());
 		//$this->assertEquals($device->getID(), $devices->items()->first()->getID());
 
-		$this->client->accessors()->deleteDevice($accessor->getID(), $device->getID());
+		$this->clp->accessors()->deleteDevice($accessor->getID(), $device->getID());
 
-		$remainingDevices = $this->client->accessors()->getDevices($accessor->getID());
+		$remainingDevices = $this->clp->accessors()->getDevices($accessor->getID());
 
 		$this->assertInstanceOf('Clay\CLP\Utilities\MultiPageResponse', $remainingDevices);
 		//$this->assertEquals(0, $remainingDevices->items()->count());
 
-		$this->client->accessors()->deleteAccessor($accessor->getID());
+		$this->clp->accessors()->deleteAccessor($accessor->getID());
 
 	}
 
 	public function test_can_generate_signed_certificate_for_accessor() {
 
-		$accessor = $this->client->accessors()->createAccessor(new NewAccessor());
-		$device = $this->client->accessors()->createDevice($accessor->getID());
+		$accessor = $this->clp->accessors()->createAccessor(new NewAccessor());
+		$device = $this->clp->accessors()->createDevice($accessor->getID());
 
 		$this->assertInstanceOf('Clay\CLP\Structs\AccessorDevice', $device);
 		$this->assertNotNull($device->getID());
 
 		$expiryDate = '2050-01-01';
 
-		$unsignedCertificate = $this->client->accessors()->createDeviceCertificate($accessor->getID(), $device->getID(), $this->keys->getPublicKey(), $expiryDate);
+		$unsignedCertificate = $this->clp->accessors()->createDeviceCertificate($accessor->getID(), $device->getID(), $this->keys->getPublicKey(), $expiryDate);
 
 		$this->assertIsString($unsignedCertificate);
 		$this->assertGreaterThan(0, strlen($unsignedCertificate));
@@ -98,7 +98,7 @@ class AccessorDevicesE2ETest extends CLPTestCase {
 		$isSignatureValid = $this->vault->verify($this->vaultVariable, $unsignedCertificate, $signature, true);
 		$this->assertTrue($isSignatureValid);
 
-		$signedCertificate = $this->client->accessors()->activateDeviceCertificate($accessor->getID(), $device->getID(), $signature);
+		$signedCertificate = $this->clp->accessors()->activateDeviceCertificate($accessor->getID(), $device->getID(), $signature);
 
 		$this->assertIsString($signedCertificate);
 		$this->assertGreaterThan(0, strlen($signedCertificate));
@@ -107,15 +107,15 @@ class AccessorDevicesE2ETest extends CLPTestCase {
 
 	public function test_can_get_mkey_for_an_iq() {
 
-		$accessor = $this->client->accessors()->createAccessor(new NewAccessor());
-		$device = $this->client->accessors()->createDevice($accessor->getID());
+		$accessor = $this->clp->accessors()->createAccessor(new NewAccessor());
+		$device = $this->clp->accessors()->createDevice($accessor->getID());
 
 		$this->assertInstanceOf('Clay\CLP\Structs\AccessorDevice', $device);
 		$this->assertNotNull($device->getID());
 
 		$expiryDate = '2050-01-01T12:30:00';
 
-		$unsignedCertificate = $this->client->accessors()->createDeviceCertificate($accessor->getID(), $device->getID(), $this->keys->getPublicKey(), $expiryDate);
+		$unsignedCertificate = $this->clp->accessors()->createDeviceCertificate($accessor->getID(), $device->getID(), $this->keys->getPublicKey(), $expiryDate);
 
 		$this->assertIsString($unsignedCertificate);
 		$this->assertGreaterThan(0, strlen($unsignedCertificate));
@@ -125,14 +125,14 @@ class AccessorDevicesE2ETest extends CLPTestCase {
 		$this->assertIsString($signature);
 		$this->assertEquals(105, strlen($signature));
 
-		$signedCertificate = $this->client->accessors()->activateDeviceCertificate($accessor->getID(), $device->getID(), $signature);
+		$signedCertificate = $this->clp->accessors()->activateDeviceCertificate($accessor->getID(), $device->getID(), $signature);
 
 		$this->assertIsString($signedCertificate);
 		$this->assertGreaterThan(0, strlen($signedCertificate));
 
-		$iq = $this->client->iqs()->getIQs(["state eq 'active'", "online eq true"])->items()->first(); /* @var $iq \Clay\CLP\Structs\IQ */
+		$iq = $this->clp->iqs()->getIQs(["state eq 'active'", "online eq true"])->items()->first(); /* @var $iq \Clay\CLP\Structs\IQ */
 
-		$mkey = $this->client->accessors()->getDeviceMobileKey($accessor->getID(), $device->getID(), $iq->getID());
+		$mkey = $this->clp->accessors()->getDeviceMobileKey($accessor->getID(), $device->getID(), $iq->getID());
 
 		$this->assertIsString($mkey);
 		$this->assertGreaterThan(0, strlen($mkey));

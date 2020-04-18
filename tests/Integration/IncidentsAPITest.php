@@ -34,7 +34,7 @@ class IncidentsAPITest extends CLPTestCase {
 	}
 
 	public function test_can_get_incidents() {
-		$incidents = $this->client->incidents()->fetchIncidents();
+		$incidents = $this->clp->incidents()->fetchIncidents();
 
 		$this->assertInstanceOf('Illuminate\Support\Collection', $incidents);
 		$this->assertEquals(100, $incidents->count());
@@ -42,7 +42,7 @@ class IncidentsAPITest extends CLPTestCase {
 	}
 
 	public function test_can_get_all_incidents() {
-		$incidents = $this->client->incidents()->fetchAllIncidents([], 200);
+		$incidents = $this->clp->incidents()->fetchAllIncidents([], 200);
 
 		$this->assertInstanceOf('Illuminate\Support\Collection', $incidents);
 		$this->assertEquals(200, $incidents->count());
@@ -58,7 +58,7 @@ class IncidentsAPITest extends CLPTestCase {
 
 	public function test_can_use_continuation_token() {
 
-		$incidents = $this->client->incidents()->fetchAllIncidents([], 15);
+		$incidents = $this->clp->incidents()->fetchAllIncidents([], 15);
 
 		$this->assertInstanceOf('Illuminate\Support\Collection', $incidents);
 		$this->assertEquals(15, $incidents->count());
@@ -67,7 +67,7 @@ class IncidentsAPITest extends CLPTestCase {
 		$continuationToken = $incidents->continuationToken ?? null;
 		$this->assertNotNull($continuationToken);
 
-		$nextIncidents = $this->client->incidents()->fetchAllIncidents([], 15, $continuationToken);
+		$nextIncidents = $this->clp->incidents()->fetchAllIncidents([], 15, $continuationToken);
 
 		$this->assertInstanceOf('Illuminate\Support\Collection', $nextIncidents);
 		$this->assertEquals(15, $nextIncidents->count());
@@ -84,7 +84,7 @@ class IncidentsAPITest extends CLPTestCase {
 	}
 
 	public function test_can_get_uneven_number_of_incidents() {
-		$incidents = $this->client->incidents()->fetchAllIncidents([], 128);
+		$incidents = $this->clp->incidents()->fetchAllIncidents([], 128);
 
 		$this->assertInstanceOf('Illuminate\Support\Collection', $incidents);
 		$this->assertEquals(128, $incidents->count());
@@ -101,7 +101,7 @@ class IncidentsAPITest extends CLPTestCase {
 
 		$collectionID = $this->config->get('clp.test.collection_id');
 
-		$incidents = $this->client->incidents()->fetchAllIncidents(["collection_id eq '{$collectionID}'"], 64);
+		$incidents = $this->clp->incidents()->fetchAllIncidents(["collection_id eq '{$collectionID}'"], 64);
 
 		$this->assertInstanceOf('Illuminate\Support\Collection', $incidents);
 		$this->assertEquals(64, $incidents->count());
@@ -123,7 +123,7 @@ class IncidentsAPITest extends CLPTestCase {
 
 		$cutoffDate = Carbon::parse('2019-01-01 12:00:00');
 
-		$incidents = $this->client->incidents()->fetchIncidentsAfterTimestamp($cutoffDate, 64, []);
+		$incidents = $this->clp->incidents()->fetchIncidentsAfterTimestamp($cutoffDate, 64, []);
 
 		$this->assertInstanceOf('Illuminate\Support\Collection', $incidents);
 		$this->assertEquals(64, $incidents->count());
@@ -149,7 +149,7 @@ class IncidentsAPITest extends CLPTestCase {
 		$cutoffDate = Carbon::parse('2019-01-01 12:00:00');
 		$collectionID = $this->config->get('clp.test.collection_id');
 
-		$incidents = $this->client->incidents()->fetchIncidentsAfterTimestamp($cutoffDate, 64, ["collection_id eq '{$collectionID}'"]);
+		$incidents = $this->clp->incidents()->fetchIncidentsAfterTimestamp($cutoffDate, 64, ["collection_id eq '{$collectionID}'"]);
 
 		$this->assertInstanceOf('Illuminate\Support\Collection', $incidents);
 		$this->assertEquals(64, $incidents->count());

@@ -22,7 +22,7 @@ class AccessorAPITest extends CLPTestCase {
 
 	public function test_can_get_list_of_accessors() {
 
-		$accessors = $this->client->accessors()->getAccessors();
+		$accessors = $this->clp->accessors()->getAccessors();
 
 		$this->assertInstanceOf('Clay\CLP\Utilities\MultiPageResponse', $accessors);
 		$this->assertGreaterThan(0, $accessors->items()->count());
@@ -32,9 +32,9 @@ class AccessorAPITest extends CLPTestCase {
 
 	public function test_can_get_single_accessor() {
 
-		$knownAccessor = $this->client->accessors()->getAccessors()->items()->first();
+		$knownAccessor = $this->clp->accessors()->getAccessors()->items()->first();
 
-		$accessor = $this->client->accessors()->getAccessor($knownAccessor->getID());
+		$accessor = $this->clp->accessors()->getAccessor($knownAccessor->getID());
 
 		$this->assertInstanceOf('Clay\CLP\Structs\Accessor', $accessor);
 		$this->assertEquals($accessor->getID(), $knownAccessor->getID());
@@ -44,7 +44,7 @@ class AccessorAPITest extends CLPTestCase {
 	public function test_can_create_update_and_delete_accessor() {
 
 		$newAccessor = new NewAccessor(null, false);
-		$createdAccessor = $this->client->accessors()->createAccessor($newAccessor);
+		$createdAccessor = $this->clp->accessors()->createAccessor($newAccessor);
 
 		$this->assertInstanceOf('Clay\CLP\Structs\Accessor', $createdAccessor);
 		$this->assertFalse($createdAccessor->isBlocked());
@@ -52,21 +52,21 @@ class AccessorAPITest extends CLPTestCase {
 
 
 		$newAccessor->blocked = true;
-		$updatedAccessor = $this->client->accessors()->updateAccessor($createdAccessor->getID(), $newAccessor);
+		$updatedAccessor = $this->clp->accessors()->updateAccessor($createdAccessor->getID(), $newAccessor);
 		$this->assertInstanceOf('Clay\CLP\Structs\Accessor', $updatedAccessor);
 		$this->assertTrue($updatedAccessor->isBlocked());
 		$this->assertNotNull($updatedAccessor->getID());
 
-		$updatedAccessor = $this->client->accessors()->getAccessor($updatedAccessor->getID());
+		$updatedAccessor = $this->clp->accessors()->getAccessor($updatedAccessor->getID());
 		$this->assertInstanceOf('Clay\CLP\Structs\Accessor', $updatedAccessor);
 		$this->assertTrue($updatedAccessor->isBlocked());
 		$this->assertNotNull($updatedAccessor->getID());
 
-		$this->client->accessors()->deleteAccessor($updatedAccessor->getID());
+		$this->clp->accessors()->deleteAccessor($updatedAccessor->getID());
 
 		$this->expectException(EndpointNotFound::class);
 
-		$deletedAccessor = $this->client->accessors()->getAccessor($updatedAccessor->getID());
+		$deletedAccessor = $this->clp->accessors()->getAccessor($updatedAccessor->getID());
 
 		$this->assertNull($deletedAccessor);
 
@@ -78,32 +78,32 @@ class AccessorAPITest extends CLPTestCase {
 		$this->assertIsString($tagNumber, 'You have not configured a Test Tag Number in your environment!');
 
 		$newAccessor = new NewAccessor(null, false);
-		$createdAccessor = $this->client->accessors()->createAccessor($newAccessor);
+		$createdAccessor = $this->clp->accessors()->createAccessor($newAccessor);
 
 		$this->assertInstanceOf('Clay\CLP\Structs\Accessor', $createdAccessor);
 		$this->assertFalse($createdAccessor->isBlocked());
 		$this->assertNotNull($createdAccessor->getID());
 
-		$tag = $this->client->tags()->getTagByNumber($tagNumber);
+		$tag = $this->clp->tags()->getTagByNumber($tagNumber);
 		$this->assertInstanceOf('Clay\CLP\Structs\Tag', $tag);
 
-		$this->client->accessors()->assignTag($createdAccessor->getID(), $tag->getID());
+		$this->clp->accessors()->assignTag($createdAccessor->getID(), $tag->getID());
 
-		$tagKey = $this->client->accessors()->getAssignedKeyByTagID($createdAccessor->getID(), $tag->getID());
-		$tagKeyByNumber = $this->client->accessors()->getAssignedKeyByTagNumber($createdAccessor->getID(), $tag->getTagNumber());
+		$tagKey = $this->clp->accessors()->getAssignedKeyByTagID($createdAccessor->getID(), $tag->getID());
+		$tagKeyByNumber = $this->clp->accessors()->getAssignedKeyByTagNumber($createdAccessor->getID(), $tag->getTagNumber());
 
 		$this->assertNotNull($tagKey);
 		$this->assertNotNull($tagKeyByNumber);
 
-		$this->client->accessors()->removeKey($createdAccessor->getID(), $tagKey->getID());
+		$this->clp->accessors()->removeKey($createdAccessor->getID(), $tagKey->getID());
 
-		$remainingTagKey = $this->client->accessors()->getAssignedKeyByTagID($createdAccessor->getID(), $tag->getID());
-		$remainingTagKeyByNumber = $this->client->accessors()->getAssignedKeyByTagNumber($createdAccessor->getID(), $tag->getTagNumber());
+		$remainingTagKey = $this->clp->accessors()->getAssignedKeyByTagID($createdAccessor->getID(), $tag->getID());
+		$remainingTagKeyByNumber = $this->clp->accessors()->getAssignedKeyByTagNumber($createdAccessor->getID(), $tag->getTagNumber());
 
 		$this->assertNull($remainingTagKey);
 		$this->assertNull($remainingTagKeyByNumber);
 
-		$this->client->accessors()->deleteAccessor($createdAccessor->getID());
+		$this->clp->accessors()->deleteAccessor($createdAccessor->getID());
 
 	}
 

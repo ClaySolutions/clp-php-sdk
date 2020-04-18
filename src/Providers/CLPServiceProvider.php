@@ -14,37 +14,64 @@
 namespace Clay\CLP\Providers;
 
 
-use Clay\CLP\Clients\CLPClient;
-use Clay\CLP\Clients\IdentityServerClient;
+use Clay\CLP\Clients\CLPService;
+use Clay\CLP\Clients\IdentityServerService;
 use Clay\CLP\Clients\VaultClient;
+use Clay\CLP\Contracts\HttpClient;
+use Clay\CLP\Http\CurlHttpClient;
 use Clay\CLP\Structs\AccessToken;
+use Clay\CLP\Structs\OAuthParameters;
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Support\ServiceProvider;
 
-class CLPServiceProvider extends ServiceProvider {
+final class CLPServiceProvider extends ServiceProvider {
 
-	const TOKEN_CACHE_KEY = 'clay/clp-php-sdk@1.0.13/auth_token';
-	const TOKEN_CACHE_LEEWAY = 20;
+	private const TOKEN_CACHE_KEY = 'clay/clp-php-sdk@1.1.0/auth_token';
+	private const TOKEN_CACHE_LEEWAY = 20;
 
-	public function register() {
+	public function register(): void {
 
-		$this->app->singleton(IdentityServerClient::class, function ($app) {
-			return new IdentityServerClient($app->make('config'));
+		$config = $this->app->make('config'); /* @var $config Repository */
+
+		$this->app->singleton('clp_identity_client', static function ($app) use ($config) {
+			return new CurlHttpClient(
+				$config->get('clp.endpoints.identity_server'),
+				['Accept' => 'application/json']
+			);
+		});
+
+		$this->app->singleton(IdentityServerService::class, static function ($app) use ($config) {
+			return new IdentityServerService(
+				new OAuthParameters(
+					$config->get('clp.client_id'),
+					$config->get('clp.client_secret'),
+					'hardware_api'
+				),
+				$this->app->make('clp_identity_client')
+			);
+		});
+
+		$this->app->singleton('clp_api_client', static function ($app) use ($config) {
+			return new CurlHttpClient(
+				$config->get('clp.endpoints.api'),
+				['Accept' => 'application/json'],
+				$this->app->make(IdentityServerService::class)
+			);
 		});
 
 		$this->app->singleton(VaultClient::class, function ($app) {
 			return new VaultClient($app->make('config'));
 		});
 
-		$this->app->singleton(CLPClient::class, function ($app) {
+		$this->app->singleton(CLPService::class, function ($app) use ($config) {
 
-			$config = $app->make('config'); /* @var $config \Illuminate\Contracts\Config\Repository */
 			$cache = $app->make('cache'); /* @var $cache \Illuminate\Contracts\Cache\Repository */
 
 			$isCacheEnabled = $config->get('clp.service.enable_token_cache', false);
 
-			$client = new CLPClient($config);
+			$client = new CLPService($config);
 
-			$identityServer = $app->make(IdentityServerClient::class); /* @var $identityServer \Clay\CLP\Clients\IdentityServerClient */
+			$identityServer = $app->make(IdentityServerService::class); /* @var $identityServer \Clay\CLP\Clients\IdentityServerService */
 
 			$client->setAuthorizationHeaderProvider(function () use ($identityServer, $isCacheEnabled, $cache) {
 

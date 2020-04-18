@@ -23,7 +23,7 @@ class CollectionAPITest extends CLPTestCase {
 
 	public function test_can_get_list_of_collections() {
 
-		$collections = $this->client->collections()->getCollections();
+		$collections = $this->clp->collections()->getCollections();
 
 		$this->assertInstanceOf('Clay\CLP\Utilities\MultiPageResponse', $collections);
 		$this->assertGreaterThan(0, $collections->items()->count());
@@ -33,9 +33,9 @@ class CollectionAPITest extends CLPTestCase {
 
 	public function test_can_get_single_collection() {
 
-		$knownCollection = $this->client->collections()->getCollections()->items()->first();
+		$knownCollection = $this->clp->collections()->getCollections()->items()->first();
 
-		$collection = $this->client->collections()->getCollection($knownCollection->getID());
+		$collection = $this->clp->collections()->getCollection($knownCollection->getID());
 
 		$this->assertInstanceOf('Clay\CLP\Structs\Collection', $collection);
 		$this->assertEquals($knownCollection->getID(), $collection->getID());
@@ -45,7 +45,7 @@ class CollectionAPITest extends CLPTestCase {
 
 		$newCollection = new NewCollection(null, 'NL', null, null);
 
-		$createdCollection = $this->client->collections()->createCollection($newCollection);
+		$createdCollection = $this->clp->collections()->createCollection($newCollection);
 
 		$this->assertInstanceOf('Clay\CLP\Structs\Collection', $createdCollection);
 		$this->assertNotNull($createdCollection->getID());
@@ -53,21 +53,21 @@ class CollectionAPITest extends CLPTestCase {
 
 		$newCollection->customer_reference = "Test Customer Reference";
 
-		$updatedCollection = $this->client->collections()->updateCollection($createdCollection->getID(), $newCollection);
+		$updatedCollection = $this->clp->collections()->updateCollection($createdCollection->getID(), $newCollection);
 
 		$this->assertInstanceOf('Clay\CLP\Structs\Collection', $updatedCollection);
 		$this->assertNotNull($updatedCollection->getID());
 		$this->assertNotNull($updatedCollection->getCustomerReference());
 
-		$refreshedCollection = $this->client->collections()->getCollection($updatedCollection->getID());
+		$refreshedCollection = $this->clp->collections()->getCollection($updatedCollection->getID());
 
 		$this->assertInstanceOf('Clay\CLP\Structs\Collection', $refreshedCollection);
 		$this->assertEquals($updatedCollection->getID(), $refreshedCollection->getID());
 		$this->assertEquals($updatedCollection->getCustomerReference(), $refreshedCollection->getCustomerReference());
 
-		$this->client->collections()->deleteCollection($refreshedCollection->getID());
+		$this->clp->collections()->deleteCollection($refreshedCollection->getID());
 
-		$remainingCollection = $this->client->collections()->getCollection($updatedCollection->getID());
+		$remainingCollection = $this->clp->collections()->getCollection($updatedCollection->getID());
 
 		$this->assertNull($remainingCollection);
 
@@ -81,19 +81,19 @@ class CollectionAPITest extends CLPTestCase {
 
 		$newCollection = new NewCollection(null, 'NL', null, null);
 
-		$createdCollection = $this->client->collections()->createCollection($newCollection);
+		$createdCollection = $this->clp->collections()->createCollection($newCollection);
 		$this->assertInstanceOf('Clay\CLP\Structs\Collection', $createdCollection);
 
 		print_r($createdCollection);
 
 		$newAccessor = new NewAccessor($createdCollection->getID());
 
-		$createdAccessor = $this->client->accessors()->createAccessor($newAccessor);
+		$createdAccessor = $this->clp->accessors()->createAccessor($newAccessor);
 		$this->assertInstanceOf('Clay\CLP\Structs\Accessor', $createdAccessor);
 
 		print_r($createdAccessor);
 
-		$collectionAccessors = $this->client->collections()->getAccessorSettings($createdCollection->getID());
+		$collectionAccessors = $this->clp->collections()->getAccessorSettings($createdCollection->getID());
 
 		print_r($collectionAccessors->items());
 

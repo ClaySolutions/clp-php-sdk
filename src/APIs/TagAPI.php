@@ -22,7 +22,7 @@ class TagAPI extends AbstractAPI {
 
 	public function getTag(string $tagID) : Tag {
 		$response = $this->client->get('tags/' . $tagID);
-		return new Tag((array) $response->content);
+		return new Tag($response->content);
 	}
 
 	public function getTags(array $filters = []) : MultiPageResponse {

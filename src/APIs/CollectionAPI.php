@@ -35,12 +35,12 @@ class CollectionAPI extends AbstractAPI {
 
 	public function createCollection(NewCollection $newCollection) : Collection {
 		$response = $this->client->post('collections', (array) $newCollection);
-		return new Collection((array) $response->content);
+		return new Collection($response->content);
 	}
 
 	public function updateCollection(string $collectionID, NewCollection $updatedCollection) : Collection {
 		$response = $this->client->patch('collections/' . $collectionID, (array) $updatedCollection);
-		return new Collection((array) $response->content);
+		return new Collection($response->content);
 	}
 
 	public function deleteCollection(string $collectionID) {

@@ -16,7 +16,7 @@ namespace Clay\CLP\Clients;
 
 use Carbon\Carbon;
 use Clay\CLP\Structs\AccessToken;
-use Clay\CLP\Utilities\AbstractHttpClient;
+use Clay\CLP\Http\AbstractHttpClient;
 
 class VaultClient extends AbstractHttpClient {
 

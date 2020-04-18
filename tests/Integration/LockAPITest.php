@@ -22,7 +22,7 @@ class LockAPITest extends CLPTestCase {
 
 	public function test_can_get_list_of_locks() {
 
-		$locks = $this->client->locks()->getLocks();
+		$locks = $this->clp->locks()->getLocks();
 
 		$this->assertInstanceOf('Clay\CLP\Utilities\MultiPageResponse', $locks);
 		$this->assertInstanceOf('Illuminate\Support\Collection', $locks->items());
@@ -31,8 +31,8 @@ class LockAPITest extends CLPTestCase {
 	}
 
 	public function test_can_get_single_lock() {
-		$existingLocks = $this->client->locks()->getLocks();
-		$lock = $this->client->locks()->getLock($existingLocks->items()->first()->getID());
+		$existingLocks = $this->clp->locks()->getLocks();
+		$lock = $this->clp->locks()->getLock($existingLocks->items()->first()->getID());
 
 		$this->assertInstanceOf('Clay\CLP\Structs\Lock', $lock);
 	}
@@ -42,7 +42,7 @@ class LockAPITest extends CLPTestCase {
 
 		$this->assertIsString($macAddress, 'You have not configured a Test Lock MAC Address in your environment!');
 
-		$locks = $this->client->locks()->getLocks(["mac eq '{$macAddress}'"]);
+		$locks = $this->clp->locks()->getLocks(["mac eq '{$macAddress}'"]);
 
 		$this->assertInstanceOf('Clay\CLP\Utilities\MultiPageResponse', $locks);
 		$this->assertGreaterThan(0, $locks->items()->count());
@@ -52,7 +52,7 @@ class LockAPITest extends CLPTestCase {
 
 	public function test_can_search_for_online_and_locked_locks() {
 
-		$locks = $this->client->locks()->getLocks(["locked_state eq 'locked'", "online eq true"]);
+		$locks = $this->clp->locks()->getLocks(["locked_state eq 'locked'", "online eq true"]);
 
 		$this->assertInstanceOf('Clay\CLP\Utilities\MultiPageResponse', $locks);
 		$this->assertGreaterThan(0, $locks->items()->count());
@@ -65,11 +65,11 @@ class LockAPITest extends CLPTestCase {
 
 		$this->assertIsString($macAddress, 'You have not configured a Test Lock MAC Address in your environment!');
 
-		$lock = $this->client->locks()->getLocks(["mac eq '{$macAddress}'"])->items()->first(); /* @var $lock \Clay\CLP\Structs\Lock */
+		$lock = $this->clp->locks()->getLocks(["mac eq '{$macAddress}'"])->items()->first(); /* @var $lock \Clay\CLP\Structs\Lock */
 
 		$this->assertInstanceOf('Clay\CLP\Structs\Lock', $lock);
 
-		$offlineKeys = $this->client->locks()->getOfflineKeys($lock->getID());
+		$offlineKeys = $this->clp->locks()->getOfflineKeys($lock->getID());
 
 		$this->assertInstanceOf('Clay\CLP\Utilities\MultiPageResponse', $offlineKeys);
 		$this->assertGreaterThan(0, $offlineKeys->items()->count());
@@ -82,11 +82,11 @@ class LockAPITest extends CLPTestCase {
 
 		$this->assertIsString($macAddress, 'You have not configured a Test Lock MAC Address in your environment!');
 
-		$lock = $this->client->locks()->getLocks(["mac eq '{$macAddress}'"])->items()->first(); /* @var $lock \Clay\CLP\Structs\Lock */
+		$lock = $this->clp->locks()->getLocks(["mac eq '{$macAddress}'"])->items()->first(); /* @var $lock \Clay\CLP\Structs\Lock */
 
 		$this->assertInstanceOf('Clay\CLP\Structs\Lock', $lock);
 
-		$offlineKeys = $this->client->locks()->getOfflineKeys($lock->getID());
+		$offlineKeys = $this->clp->locks()->getOfflineKeys($lock->getID());
 
 		// Ensures we have at least one key
 		$this->assertGreaterThan(0, $offlineKeys->items()->count());
@@ -97,17 +97,17 @@ class LockAPITest extends CLPTestCase {
 		$existingKey = $offlineKeys->items()->first();
 
 		// Remove a known key from the lock
-		$this->client->locks()->removeOfflineKey($lock->getID(), $existingKey->getID());
+		$this->clp->locks()->removeOfflineKey($lock->getID(), $existingKey->getID());
 
 		// Ensures the key was correctly removed
-		$updatedOfflineKeys = $this->client->locks()->getOfflineKeys($lock->getID());
+		$updatedOfflineKeys = $this->clp->locks()->getOfflineKeys($lock->getID());
 		$this->assertEquals($numKeysBeforeRemoving - 1, $updatedOfflineKeys->items()->count());
 
 		// Add back the known key
-		$this->client->locks()->addOfflineKey($lock->getID(), $existingKey->getID());
+		$this->clp->locks()->addOfflineKey($lock->getID(), $existingKey->getID());
 
 		// Check again if the key was added
-		$updatedOfflineKeys = $this->client->locks()->getOfflineKeys($lock->getID());
+		$updatedOfflineKeys = $this->clp->locks()->getOfflineKeys($lock->getID());
 		$this->assertEquals($numKeysBeforeRemoving, $updatedOfflineKeys->items()->count());
 
 	}
@@ -118,13 +118,13 @@ class LockAPITest extends CLPTestCase {
 
 		$this->assertIsString($macAddress, 'You have not configured a Test Lock MAC Address in your environment!');
 
-		$lock = $this->client->locks()->getLocks(["mac eq '{$macAddress}'"])->items()->first(); /* @var $lock \Clay\CLP\Structs\Lock */
+		$lock = $this->clp->locks()->getLocks(["mac eq '{$macAddress}'"])->items()->first(); /* @var $lock \Clay\CLP\Structs\Lock */
 
 		$this->assertInstanceOf('Clay\CLP\Structs\Lock', $lock);
 
-		$this->client->locks()->deleteEasyOfficeModeSchedule($lock->getID());
+		$this->clp->locks()->deleteEasyOfficeModeSchedule($lock->getID());
 
-		$existingEOMSchedule = $this->client->locks()->getEasyOfficeModeSchedule($lock->getID());
+		$existingEOMSchedule = $this->clp->locks()->getEasyOfficeModeSchedule($lock->getID());
 
 		$this->assertNull($existingEOMSchedule);
 
@@ -139,9 +139,9 @@ class LockAPITest extends CLPTestCase {
 		$newEOMSchedule->setStartDate($yesterday);
 		$newEOMSchedule->setEndDate($tomorrow);
 
-		$this->client->locks()->setEasyOfficeModeSchedule($lock->getID(), $newEOMSchedule);
+		$this->clp->locks()->setEasyOfficeModeSchedule($lock->getID(), $newEOMSchedule);
 
-		$updatedEOMSchedule = $this->client->locks()->getEasyOfficeModeSchedule($lock->getID());
+		$updatedEOMSchedule = $this->clp->locks()->getEasyOfficeModeSchedule($lock->getID());
 
 		$this->assertTrue($updatedEOMSchedule->isMondayEnabled());
 		$this->assertTrue($updatedEOMSchedule->isWednesdayEnabled());
@@ -157,9 +157,9 @@ class LockAPITest extends CLPTestCase {
 		$this->assertEquals($yesterday, $updatedEOMSchedule->getStartDate());
 		$this->assertEquals($tomorrow, $updatedEOMSchedule->getEndDate());
 
-		$this->client->locks()->deleteEasyOfficeModeSchedule($lock->getID());
+		$this->clp->locks()->deleteEasyOfficeModeSchedule($lock->getID());
 
-		$deletedEOMSchedule = $this->client->locks()->getEasyOfficeModeSchedule($lock->getID());
+		$deletedEOMSchedule = $this->clp->locks()->getEasyOfficeModeSchedule($lock->getID());
 
 		$this->assertNull($deletedEOMSchedule);
 
@@ -171,9 +171,9 @@ class LockAPITest extends CLPTestCase {
 
 		$this->assertIsString($macAddress, 'You have not configured a Test Lock MAC Address in your environment!');
 
-		$lock = $this->client->locks()->getLocks(["mac eq '{$macAddress}'"])->items()->first(); /* @var $lock \Clay\CLP\Structs\Lock */
+		$lock = $this->clp->locks()->getLocks(["mac eq '{$macAddress}'"])->items()->first(); /* @var $lock \Clay\CLP\Structs\Lock */
 
-		$this->client->locks()->triggerLockRegistrationMode($lock->getID(), 15);
+		$this->clp->locks()->triggerLockRegistrationMode($lock->getID(), 15);
 
 	}
 

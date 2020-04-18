@@ -30,7 +30,7 @@ class RepeaterAPI extends AbstractAPI {
 	 */
 	public function getRepeater(string $repeaterID) : Repeater {
 		$response = $this->client->get('repeaters/' . $repeaterID);
-		return new Repeater((array) $response->content);
+		return new Repeater($response->content);
 	}
 
 	/**

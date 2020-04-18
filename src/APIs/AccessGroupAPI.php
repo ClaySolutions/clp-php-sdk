@@ -14,6 +14,7 @@
 namespace Clay\CLP\APIs;
 
 
+use Clay\CLP\Http\HttpResponse;
 use Clay\CLP\Structs\AccessGroup;
 use Clay\CLP\Structs\Accessor;
 use Clay\CLP\Structs\Lock;
@@ -26,7 +27,7 @@ class AccessGroupAPI extends AbstractAPI {
 
 	public function getGroup(string $groupID) : AccessGroup {
 		$response = $this->client->get('access_groups/' . $groupID);
-		return new AccessGroup((array) $response->content);
+		return new AccessGroup($response->content);
 	}
 
 	public function getGroups(array $filters = []) : MultiPageResponse {
@@ -36,15 +37,15 @@ class AccessGroupAPI extends AbstractAPI {
 
 	public function createGroup(NewAccessGroup $newGroup) : AccessGroup {
 		$response = $this->client->post('access_groups', (array) $newGroup);
-		return new AccessGroup((array) $response->content);
+		return new AccessGroup($response->content);
 	}
 
 	public function updateGroup(string $groupID, NewAccessGroup $newGroup) : AccessGroup {
 		$response = $this->client->patch('access_groups/' . $groupID, (array) $newGroup);
-		return new AccessGroup((array) $response->content);
+		return new AccessGroup($response->content);
 	}
 
-	public function deleteGroup(string $groupID) {
+	public function deleteGroup(string $groupID): HttpResponse {
 		return $this->client->delete('access_groups/' . $groupID);
 	}
 
@@ -53,7 +54,7 @@ class AccessGroupAPI extends AbstractAPI {
 		return new MultiPageResponse($response->content, $this->client, Lock::class);
 	}
 
-	public function updateGroupLocks(string $groupID, array $idsToAdd = [], array $idsToRemove = []) {
+	public function updateGroupLocks(string $groupID, array $idsToAdd = [], array $idsToRemove = []): HttpResponse {
 		return $this->client->patch('access_groups/' . $groupID . '/locks', [
 			'add_ids' => $idsToAdd,
 			'remove_ids' => $idsToRemove,
@@ -65,7 +66,7 @@ class AccessGroupAPI extends AbstractAPI {
 		return new MultiPageResponse($response->content, $this->client, Accessor::class);
 	}
 
-	public function updateGroupAccessors(string $groupID, array $idsToAdd = [], array $idsToRemove = []) {
+	public function updateGroupAccessors(string $groupID, array $idsToAdd = [], array $idsToRemove = []): HttpResponse {
 		return $this->client->patch('access_groups/' . $groupID . '/accessors', [
 			'add_ids' => $idsToAdd,
 			'remove_ids' => $idsToRemove,
@@ -79,16 +80,16 @@ class AccessGroupAPI extends AbstractAPI {
 
 	public function addTimeSchedule(string $groupID, TimeSchedule $timeSchedule) : TimeSchedule {
 		$response = $this->client->post('access_groups/' . $groupID . '/time_schedules', $timeSchedule->toArray(true));
-		return new TimeSchedule((array) $response->content);
+		return new TimeSchedule($response->content);
 	}
 
-	public function removeTimeSchedule(string $groupID, string $scheduleID) {
+	public function removeTimeSchedule(string $groupID, string $scheduleID): HttpResponse {
 		return $this->client->delete('access_groups/' . $groupID . '/time_schedules/' . $scheduleID);
 	}
 
 	public function updateTimeSchedule(string $groupID, string $scheduleID, TimeSchedule $timeSchedule) : TimeSchedule {
 		$response = $this->client->patch('access_groups/' . $groupID . '/time_schedules/' . $scheduleID, $timeSchedule->toArray(true));
-		return new TimeSchedule((array) $response->content);
+		return new TimeSchedule($response->content);
 	}
 
 }

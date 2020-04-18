@@ -48,7 +48,7 @@ class LockAPI extends AbstractAPI {
 	 */
 	public function getLock(string $lockID) : Lock {
 		$response = $this->client->get('locks/' . $lockID);
-		return new Lock((array) $response->content);
+		return new Lock($response->content);
 	}
 
 	/**
@@ -79,7 +79,7 @@ class LockAPI extends AbstractAPI {
 			'accessor_id' => $accessorID,
 		]);
 
-		return new Lock((array) $response->content);
+		return new Lock($response->content);
 	}
 
 	/**

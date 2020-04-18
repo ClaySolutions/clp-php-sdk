@@ -21,7 +21,7 @@ class IQAPITest extends CLPTestCase {
 
 	public function test_can_get_iqs() {
 
-		$iqs = $this->client->iqs()->getIQs();
+		$iqs = $this->clp->iqs()->getIQs();
 
 		$this->assertInstanceOf('Clay\CLP\Utilities\MultiPageResponse', $iqs);
 		$this->assertInstanceOf('Illuminate\Support\Collection', $iqs->items());
@@ -30,19 +30,19 @@ class IQAPITest extends CLPTestCase {
 	}
 
 	public function test_can_get_single_iq() {
-		$existingIQs = $this->client->iqs()->getIQs();
-		$iq = $this->client->iqs()->getIQ($existingIQs->items()->first()->getID());
+		$existingIQs = $this->clp->iqs()->getIQs();
+		$iq = $this->clp->iqs()->getIQ($existingIQs->items()->first()->getID());
 
 		$this->assertInstanceOf('Clay\CLP\Structs\IQ', $iq);
 	}
 
 	public function test_can_get_iq_network_details() {
-		$existingIQs = $this->client->iqs()->getIQs();
-		$iq = $this->client->iqs()->getIQ($existingIQs->items()->first()->getID());
+		$existingIQs = $this->clp->iqs()->getIQs();
+		$iq = $this->clp->iqs()->getIQ($existingIQs->items()->first()->getID());
 
 		$this->assertInstanceOf('Clay\CLP\Structs\IQ', $iq);
 
-		$networkDetails = $this->client->iqs()->getIQNetworkDetails($iq->getID());
+		$networkDetails = $this->clp->iqs()->getIQNetworkDetails($iq->getID());
 
 		$this->assertInstanceOf('Clay\CLP\Structs\IQNetworkDetails', $networkDetails);
 		$this->assertInstanceOf('Illuminate\Support\Collection', $networkDetails->getNetworkAdapters());
@@ -62,7 +62,7 @@ class IQAPITest extends CLPTestCase {
 
 		$this->assertIsString($macAddress, 'You have not configured a Test IQ MAC Address in your environment!');
 
-		$iqs = $this->client->iqs()->getIQs(["mac eq '{$macAddress}'"]);
+		$iqs = $this->clp->iqs()->getIQs(["mac eq '{$macAddress}'"]);
 
 		$this->assertInstanceOf('Clay\CLP\Utilities\MultiPageResponse', $iqs);
 		$this->assertGreaterThan(0, $iqs->items()->count());
@@ -72,7 +72,7 @@ class IQAPITest extends CLPTestCase {
 
 	public function test_can_search_for_online_active_iqs() {
 
-		$iqs = $this->client->iqs()->getIQs(["state eq 'active'", "online eq true"]);
+		$iqs = $this->clp->iqs()->getIQs(["state eq 'active'", "online eq true"]);
 
 		$this->assertInstanceOf('Clay\CLP\Utilities\MultiPageResponse', $iqs);
 		$this->assertGreaterThan(0, $iqs->items()->count());
@@ -88,13 +88,13 @@ class IQAPITest extends CLPTestCase {
 
 		$this->assertIsString($macAddress, 'You have not configured a Test IQ MAC Address in your environment!');
 
-		$existingIQ = $this->client->iqs()->getIQs(["mac eq '{$macAddress}'"])->items()->first(); /* @var $existingIQ IQ */
+		$existingIQ = $this->clp->iqs()->getIQs(["mac eq '{$macAddress}'"])->items()->first(); /* @var $existingIQ IQ */
 
 		$this->assertInstanceOf('Clay\CLP\Structs\IQ', $existingIQ);
 
-		$this->client->iqs()->deleteIQ($existingIQ->getID());
+		$this->clp->iqs()->deleteIQ($existingIQ->getID());
 
-		$remainingIqsWithSameMacAddress = $this->client->iqs()->getIQs(["mac eq '{$macAddress}'"]);
+		$remainingIqsWithSameMacAddress = $this->clp->iqs()->getIQs(["mac eq '{$macAddress}'"]);
 
 		$this->assertEquals(0, $remainingIqsWithSameMacAddress->items()->count());
 		$this->assertEmpty($remainingIqsWithSameMacAddress->items());
@@ -112,13 +112,13 @@ class IQAPITest extends CLPTestCase {
 		$this->assertIsString($macAddress, 'You have not configured a Test IQ MAC Address in your environment!');
 		$this->assertIsString($activationCode, 'You have not configured a Test IQ Activation Code in your environment!');
 
-		$existingIQ = $this->client->iqs()->getIQs(["mac eq '{$macAddress}'"])->items()->first(); /* @var $existingIQ IQ */
+		$existingIQ = $this->clp->iqs()->getIQs(["mac eq '{$macAddress}'"])->items()->first(); /* @var $existingIQ IQ */
 
 		if($existingIQ) {
 			$this->markTestSkipped('Cannot test IQ registration: an IQ already exists with the given test MAC address');
 		}
 
-		$newIQ = $this->client->iqs()->registerIQ(new NewIQRegistration(
+		$newIQ = $this->clp->iqs()->registerIQ(new NewIQRegistration(
 			$customerReference,
 			null,
 			'Europe/Amsterdam',
@@ -129,7 +129,7 @@ class IQAPITest extends CLPTestCase {
 		$this->assertInstanceOf('Clay\CLP\Structs\IQ', $newIQ);
 		$this->assertEquals($customerReference, $newIQ->getCustomerReference());
 
-		$foundIQWithSameMAC = $this->client->iqs()->getIQs(["mac eq '{$macAddress}'"])->items()->first(); /* @var $foundIQWithSameMAC IQ */
+		$foundIQWithSameMAC = $this->clp->iqs()->getIQs(["mac eq '{$macAddress}'"])->items()->first(); /* @var $foundIQWithSameMAC IQ */
 
 		$this->assertInstanceOf('Clay\CLP\Structs\IQ', $foundIQWithSameMAC);
 		$this->assertEquals($newIQ->getID(), $foundIQWithSameMAC->getID());
@@ -143,11 +143,11 @@ class IQAPITest extends CLPTestCase {
 
 		$this->assertIsString($macAddress, 'You have not configured a Test IQ MAC Address in your environment!');
 
-		$iq = $this->client->iqs()->getIQs(["mac eq '{$macAddress}'"])->items()->first(); /* @var $iq \Clay\CLP\Structs\IQ */
+		$iq = $this->clp->iqs()->getIQs(["mac eq '{$macAddress}'"])->items()->first(); /* @var $iq \Clay\CLP\Structs\IQ */
 
 		$this->assertInstanceOf('Clay\CLP\Structs\IQ', $iq);
 
-		$hardwareTree = $this->client->iqs()->getHardwareTree($iq->getID());
+		$hardwareTree = $this->clp->iqs()->getHardwareTree($iq->getID());
 
 		$this->assertInstanceOf('Illuminate\Support\Collection', $hardwareTree);
 		$this->assertGreaterThan(0, $hardwareTree->count());

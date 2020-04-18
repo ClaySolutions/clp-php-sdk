@@ -14,14 +14,14 @@
 namespace Tests\Integration;
 
 
-use Clay\CLP\Clients\IdentityServerClient;
+use Clay\CLP\Clients\IdentityServerService;
 use Tests\TestCase;
 
 class IdentityServerClientTest extends TestCase {
 
 	public function test_can_generate_an_access_token() {
 
-		$client = new IdentityServerClient($this->config);
+		$client = new IdentityServerService($this->config);
 		$accessToken = $client->fetchAccessToken();
 
 		$this->assertInstanceOf('Clay\CLP\Structs\AccessToken', $accessToken);

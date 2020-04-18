@@ -14,7 +14,9 @@
 namespace Clay\CLP\Utilities;
 
 
+use Clay\CLP\Contracts\HttpClient;
 use Illuminate\Support\Collection;
+use RuntimeException;
 
 class MultiPageResponse {
 
@@ -26,14 +28,14 @@ class MultiPageResponse {
 
 	/**
 	 * The class to cast page items to.
-	 * @var \stdClass|null
+	 * @var string|null
 	 */
 
 	private $itemClass = null;
 
 	/**
 	 * The client to request the next page with.
-	 * @var AbstractHttpClient
+	 * @var HttpClient
 	 */
 	private $client;
 
@@ -46,14 +48,14 @@ class MultiPageResponse {
 	/**
 	 * MultiPageResponse constructor.
 	 * @param object|mixed $response The received response from the API
-	 * @param AbstractHttpClient $client The client that will be used to request more pages
-	 * @param \stdClass $itemClass [optiona] The class to cast each item with. If null, will return array results.
-	 * @throws \Exception
+	 * @param HttpClient $client The client that will be used to request more pages
+	 * @param $itemClass [optional] The class to cast each item with. If null, will return array results.
+	 * @throws RuntimeException
 	 */
-	public function __construct($response, AbstractHttpClient $client, $itemClass = null) {
+	public function __construct($response, HttpClient $client, ?string $itemClass = null) {
 
-		if(!isset($response->items)) {
-			throw new \Exception("Given response is not a MultiPageResponse!");
+		if(!isset($response['items'])) {
+			throw new RuntimeException('Given response is not a MultiPageResponse!');
 		}
 
 		$this->response = $response;
@@ -67,33 +69,33 @@ class MultiPageResponse {
 	 */
 	private function getCurrentPageItems() : array {
 		if($this->items === null) {
-			$this->items = (array) ($this->response->items ?? []);
+			$this->items = (array) ($this->response['items'] ?? []);
 		}
 
-		return (array) $this->items;
+		return $this->items;
 	}
 
 	/**
 	 * Checks if the current page has items.
 	 * @return bool
 	 */
-	public function hasItems() {
-		return sizeof($this->response->items ?? []) > 0;
+	public function hasItems(): bool {
+		return count($this->response['items'] ?? []) > 0;
 	}
 
 	/**
 	 * Checks if the request has a next page available.
 	 * @return bool
 	 */
-	public function hasNextPage() : bool {
-		return $this->response->next_page_link !== null;
+	public function hasNextPage(): bool {
+		return $this->response['next_page_link'] !== null;
 	}
 
 	/**
 	 * Returns a collection of items for the current page.
 	 * @return Collection
 	 */
-	public function items() : Collection {
+	public function items(): Collection {
 		return collect($this->getCurrentPageItems())
 			->map(function ($item) {
 
@@ -110,18 +112,14 @@ class MultiPageResponse {
 	 * Fetches the next page of results.
 	 *
 	 * @return MultiPageResponse
-	 * @throws \Clay\CLP\Exceptions\EmptyResponseFromServer
-	 * @throws \Clay\CLP\Exceptions\EndpointNotFound
-	 * @throws \Clay\CLP\Exceptions\HttpRequestError
-	 * @throws \Clay\CLP\Exceptions\AccessNotAllowed
 	 */
-	public function fetchNextPage() : ?self {
+	public function fetchNextPage(): ?self {
 
 		if(!$this->hasNextPage()) {
 			return null;
 		}
 
-		$nextPageResponse = $this->client->get($this->response->next_page_link);
+		$nextPageResponse = $this->client->get($this->response['next_page_link']);
 
 		return new static(
 			$nextPageResponse,

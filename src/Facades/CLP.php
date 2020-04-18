@@ -21,7 +21,7 @@ use Clay\CLP\APIs\IQAPI;
 use Clay\CLP\APIs\LockAPI;
 use Clay\CLP\APIs\RepeaterAPI;
 use Clay\CLP\APIs\TagAPI;
-use Clay\CLP\Clients\CLPClient;
+use Clay\CLP\Clients\CLPService;
 use Illuminate\Support\Facades\Facade;
 
 /**
@@ -39,7 +39,7 @@ use Illuminate\Support\Facades\Facade;
 class CLP extends Facade {
 
 	protected static function getFacadeAccessor() {
-		return CLPClient::class;
+		return CLPService::class;
 	}
 
 }

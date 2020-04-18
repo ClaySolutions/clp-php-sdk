@@ -25,7 +25,7 @@ class AccessorAPI extends AbstractAPI {
 
 	public function getAccessor(string $accessorID) : Accessor {
 		$response = $this->client->get('accessors/' . $accessorID);
-		return new Accessor((array) $response->content);
+		return new Accessor($response->content);
 	}
 
 	public function getAccessors(array $filters = []) : MultiPageResponse {
@@ -35,7 +35,7 @@ class AccessorAPI extends AbstractAPI {
 
 	public function createAccessor(NewAccessor $accessor) : Accessor {
 		$response = $this->client->post('accessors', (array) $accessor);
-		return new Accessor((array) $response->content);
+		return new Accessor($response->content);
 	}
 
 	public function deleteAccessor(string $accessorID) {
@@ -44,7 +44,7 @@ class AccessorAPI extends AbstractAPI {
 
 	public function updateAccessor(string $accessorID, NewAccessor $accessor) : Accessor {
 		$response = $this->client->patch('accessors/' . $accessorID, (array) $accessor);
-		return new Accessor((array) $response->content);
+		return new Accessor($response->content);
 	}
 
 	public function getAssignedKeys(string $accessorID) : MultiPageResponse {
@@ -58,7 +58,7 @@ class AccessorAPI extends AbstractAPI {
 			'blocked' => $isBlocked,
 		]);
 
-		return new Key((array) $response->content);
+		return new Key($response->content);
 	}
 
 	public function getAssignedKeyByTagID(string $accessorID, string $tagID) : ?Key {
@@ -98,7 +98,7 @@ class AccessorAPI extends AbstractAPI {
 
 	public function getDevice(string $accessorID, string $deviceID) : AccessorDevice {
 		$response = $this->client->get('accessors/' . $accessorID . '/devices/' . $deviceID);
-		return new AccessorDevice((array) $response->content);
+		return new AccessorDevice($response->content);
 	}
 
 	public function createDevice(string $accessorID, ?string $deviceCustomerReference = null) : AccessorDevice {
@@ -106,7 +106,7 @@ class AccessorAPI extends AbstractAPI {
 			'customer_reference' => $deviceCustomerReference
 		]);
 
-		return new AccessorDevice((array) $response->content);
+		return new AccessorDevice($response->content);
 	}
 
 	public function getDeviceMobileKey(string $accessorID, string $deviceID, string $iqID) : ?string {

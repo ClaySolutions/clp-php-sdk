@@ -20,7 +20,7 @@ class RepeaterAPITest extends CLPTestCase {
 
 	public function test_can_get_list_of_repeaters() {
 
-		$repeaters = $this->client->repeaters()->getRepeaters();
+		$repeaters = $this->clp->repeaters()->getRepeaters();
 
 		$this->assertInstanceOf('Clay\CLP\Utilities\MultiPageResponse', $repeaters);
 		$this->assertGreaterThan(0, $repeaters->items()->count());
@@ -30,8 +30,8 @@ class RepeaterAPITest extends CLPTestCase {
 
 	public function test_can_get_single_repeater() {
 
-		$existingRepeaters = $this->client->repeaters()->getRepeaters();
-		$repeater = $this->client->repeaters()->getRepeater($existingRepeaters->items()->first()->getID());
+		$existingRepeaters = $this->clp->repeaters()->getRepeaters();
+		$repeater = $this->clp->repeaters()->getRepeater($existingRepeaters->items()->first()->getID());
 
 		$this->assertInstanceOf('Clay\CLP\Structs\Repeater', $repeater);
 		$this->assertEquals($existingRepeaters->items()->first()->getID(), $repeater->getID());

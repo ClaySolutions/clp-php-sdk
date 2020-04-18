@@ -50,7 +50,7 @@ class IQAPI extends AbstractAPI {
 	 */
 	public function getIQ(string $iqID) : IQ {
 		$response = $this->client->get('iqs/' . $iqID);
-		return new IQ((array) $response->content);
+		return new IQ($response->content);
 	}
 
 	/**
@@ -64,7 +64,7 @@ class IQAPI extends AbstractAPI {
 	 */
 	public function getIQNetworkDetails(string $iqID) : IQNetworkDetails{
 		$response = $this->client->get('iqs/' . $iqID . '/details');
-		return new IQNetworkDetails((array) $response->content);
+		return new IQNetworkDetails($response->content);
 	}
 
 	/**
@@ -77,7 +77,7 @@ class IQAPI extends AbstractAPI {
 	 */
 	public function registerIQ(NewIQRegistration $registration) : IQ {
 		$response = $this->client->post('iqs', (array) $registration);
-		return new IQ((array) $response->content);
+		return new IQ($response->content);
 	}
 
 	/**
@@ -94,7 +94,7 @@ class IQAPI extends AbstractAPI {
 			'time_zone' => $timezoneIanaName,
 		]);
 
-		return (array) $response->content;
+		return $response->content;
 	}
 
 	/**

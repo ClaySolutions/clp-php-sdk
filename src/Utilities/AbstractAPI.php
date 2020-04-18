@@ -14,22 +14,26 @@
 namespace Clay\CLP\Utilities;
 
 
+use Clay\CLP\Contracts\HttpClient;
+
 abstract class AbstractAPI {
 
 	protected $client;
 	protected static $instance;
 
-	public function __construct(AbstractHttpClient $client) {
+	public function __construct(HttpClient $client) {
 		$this->client = $client;
 	}
 
 	public function buildODataFiltersParameter(array $filters = []) : string {
 
-		if(sizeof($filters) <= 0) return '?';
+		if(count($filters) <= 0) {
+			return '?';
+		}
 
 		$filteringString = urlencode(
 			collect($filters)
-				->map(function ($filter) {
+				->map(static function ($filter) {
 					return ("({$filter})");
 				})
 				->implode(' and ')
@@ -41,8 +45,8 @@ abstract class AbstractAPI {
 
 	protected static $instances = [];
 
-	public static function getInstance(AbstractHttpClient $client) : self {
-		$className = get_called_class();
+	public static function getInstance(HttpClient $client) : self {
+		$className = static::class;
 
 		if(!isset(self::$instances[$className])) {
 			self::$instances[$className] = new static($client);
