@@ -14,13 +14,19 @@
 namespace Clay\CLP\APIs;
 
 
+use Clay\CLP\Exceptions\AccessNotAllowed;
+use Clay\CLP\Exceptions\EmptyResponseFromServer;
+use Clay\CLP\Exceptions\EndpointNotFound;
+use Clay\CLP\Exceptions\HttpRequestError;
 use Clay\CLP\Structs\AccessGroup;
 use Clay\CLP\Structs\Accessor;
+use Clay\CLP\Structs\APIRequest;
 use Clay\CLP\Structs\Lock;
 use Clay\CLP\Structs\NewAccessGroup;
 use Clay\CLP\Structs\TimeSchedule;
 use Clay\CLP\Utilities\AbstractAPI;
 use Clay\CLP\Utilities\MultiPageResponse;
+use Illuminate\Support\Collection;
 
 class AccessGroupAPI extends AbstractAPI {
 
@@ -65,6 +71,18 @@ class AccessGroupAPI extends AbstractAPI {
 		return new MultiPageResponse($response->content, $this->client, Accessor::class);
 	}
 
+	/**
+	 * @param string $groupID
+	 * @param array $idsToAdd
+	 * @param array $idsToRemove
+	 *
+	 * @return array|object
+	 *
+	 * @throws AccessNotAllowed
+	 * @throws EmptyResponseFromServer
+	 * @throws EndpointNotFound
+	 * @throws HttpRequestError
+	 */
 	public function updateGroupAccessors(string $groupID, array $idsToAdd = [], array $idsToRemove = []) {
 		return $this->client->patch('access_groups/' . $groupID . '/accessors', [
 			'add_ids' => $idsToAdd,
@@ -89,6 +107,46 @@ class AccessGroupAPI extends AbstractAPI {
 	public function updateTimeSchedule(string $groupID, string $scheduleID, TimeSchedule $timeSchedule) : TimeSchedule {
 		$response = $this->client->patch('access_groups/' . $groupID . '/time_schedules/' . $scheduleID, $timeSchedule->toArray(true));
 		return new TimeSchedule((array) $response->content);
+	}
+
+	/**
+	 * @param string $groupID
+	 * @param array $filters
+	 * @param int $maxRecords
+	 *
+	 * @return Lock[]|Collection
+	 *
+	 * @throws AccessNotAllowed
+	 * @throws EmptyResponseFromServer
+	 * @throws EndpointNotFound
+	 * @throws HttpRequestError
+	 */
+	public function fetchAllGroupLocks(string $groupID, array $filters = [], int $maxRecords = 0): Collection {
+		$request = new APIRequest(
+			'access_groups/' . $groupID . '/locks' . $this->buildODataFiltersParameter($filters)
+		);
+
+		return MultiPageResponse::fetchFullCollection($request, $this->client, $maxRecords, Lock::class);
+	}
+
+	/**
+	 * @param string $groupID
+	 * @param array $filters
+	 * @param int $maxRecords
+	 *
+	 * @return Accessor[]|Collection
+	 *
+	 * @throws AccessNotAllowed
+	 * @throws EmptyResponseFromServer
+	 * @throws EndpointNotFound
+	 * @throws HttpRequestError
+	 */
+	public function fetchAllGroupAccessors(string $groupID, array $filters = [], int $maxRecords = 0) : Collection {
+		$request = new APIRequest(
+			'access_groups/' . $groupID . '/accessors' . $this->buildODataFiltersParameter($filters)
+		);
+
+		return MultiPageResponse::fetchFullCollection($request, $this->client, $maxRecords, Accessor::class);
 	}
 
 }
