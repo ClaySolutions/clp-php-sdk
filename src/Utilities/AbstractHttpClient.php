@@ -66,8 +66,15 @@ abstract class AbstractHttpClient {
 	 * @return string
 	 */
 	public function generateEndpointURL(string $path) : string {
-        if($this->isFullURL($path)) return Str::finish($path, '/');
-        return Str::finish($this->getEndpointBaseURL(), '/') . $path;
+        if(!$this->isFullURL($path)) {
+            return Str::finish($this->getEndpointBaseURL(), '/') . $path;
+        }
+
+        if(!$this->hasQueryPath($path)) {
+        	return Str::finish($this->ensureSecure($path), '/');
+        }
+
+        return $this->ensureSecure($path);
 	}
 
 	/**
@@ -76,8 +83,26 @@ abstract class AbstractHttpClient {
 	 * @return bool True if full URL, false if local path
 	 */
 	protected function isFullURL(string $input) : bool {
-		return (substr($input, 0, 7) === 'http://')
-			|| (substr($input, 0, 8) === 'https://');
+		return (strpos($input, 'http://') === 0)
+			|| (strpos($input, 'https://') === 0);
+	}
+
+	/**
+	 * Checks if a given path/URI has a query marker
+	 * @param string $input
+	 * @return bool
+	 */
+	protected function hasQueryPath(string $input) : bool {
+		return (strpos($input, '?') !== false);
+	}
+
+	/**
+	 * Ensures an outgoing URL is always HTTPS
+	 * @param string $input
+	 * @return string
+	 */
+	protected function ensureSecure(string $input) : string {
+		return str_replace('http://', 'https://', $input);
 	}
 
 	/**
