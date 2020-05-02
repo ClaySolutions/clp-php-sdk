@@ -13,8 +13,15 @@
 
 namespace Clay\CLP\Utilities;
 
-
+use Clay\CLP\Exceptions\AccessNotAllowed;
+use Clay\CLP\Exceptions\EmptyResponseFromServer;
+use Clay\CLP\Exceptions\EndpointNotFound;
+use Clay\CLP\Exceptions\HttpRequestError;
+use Clay\CLP\Structs\APIRequest;
+use Exception;
 use Illuminate\Support\Collection;
+use InvalidArgumentException;
+use stdClass;
 
 class MultiPageResponse {
 
@@ -45,15 +52,17 @@ class MultiPageResponse {
 
 	/**
 	 * MultiPageResponse constructor.
+	 *
 	 * @param object|mixed $response The received response from the API
 	 * @param AbstractHttpClient $client The client that will be used to request more pages
-	 * @param \stdClass $itemClass [optiona] The class to cast each item with. If null, will return array results.
-	 * @throws \Exception
+	 * @param stdClass $itemClass [optiona] The class to cast each item with. If null, will return array results.
+	 *
+	 * @throws InvalidArgumentException
 	 */
 	public function __construct($response, AbstractHttpClient $client, $itemClass = null) {
 
 		if(!isset($response->items)) {
-			throw new \Exception("Given response is not a MultiPageResponse!");
+			throw new InvalidArgumentException('Given response is not a MultiPageResponse!');
 		}
 
 		$this->response = $response;
@@ -77,8 +86,8 @@ class MultiPageResponse {
 	 * Checks if the current page has items.
 	 * @return bool
 	 */
-	public function hasItems() {
-		return sizeof($this->response->items ?? []) > 0;
+	public function hasItems() : bool {
+		return count($this->response->items ?? []) > 0;
 	}
 
 	/**
@@ -110,10 +119,12 @@ class MultiPageResponse {
 	 * Fetches the next page of results.
 	 *
 	 * @return MultiPageResponse
-	 * @throws \Clay\CLP\Exceptions\EmptyResponseFromServer
-	 * @throws \Clay\CLP\Exceptions\EndpointNotFound
-	 * @throws \Clay\CLP\Exceptions\HttpRequestError
-	 * @throws \Clay\CLP\Exceptions\AccessNotAllowed
+	 *
+	 * @throws EmptyResponseFromServer
+	 * @throws EndpointNotFound
+	 * @throws HttpRequestError
+	 * @throws AccessNotAllowed
+	 * @throws Exception
 	 */
 	public function fetchNextPage() : ?self {
 
@@ -128,6 +139,64 @@ class MultiPageResponse {
 			$this->client,
 			$this->itemClass
 		);
+	}
+
+	/**
+	 * Fetches all records available in a given endpoint, by following the next page URL link up until the max records
+	 * count is reached. If max records is 0, it will continue to fetch until the next_page_link comes up empty.
+	 *
+	 * @param APIRequest $request
+	 * @param AbstractHttpClient $client
+	 * @param int $maxRecords
+	 * @param string|null $entityClass
+	 *
+	 * @return Collection
+	 *
+	 * @throws AccessNotAllowed
+	 * @throws EmptyResponseFromServer
+	 * @throws EndpointNotFound
+	 * @throws HttpRequestError
+	 */
+	public static function fetchFullCollection(APIRequest $request, AbstractHttpClient $client, int $maxRecords = 0, ?string $entityClass = null): Collection {
+
+		$fetched = 0;
+		$results = collect([]);
+		$batchRequestPath = $request->getEndpoint();
+
+		if($maxRecords === 0) {
+			$maxRecords = PHP_INT_MAX;
+		}
+
+		while($fetched < $maxRecords) {
+
+			$batch = $client->get($batchRequestPath, $request->getHeaders(), $request->shouldSkipDefaultHeaders());
+
+			if(!$batch || !$batch->content || !$batch->content->items) {
+				break;
+			}
+
+			$fetched += count((array) $batch->content->items);
+			$results = $results->concat((array) $batch->content->items);
+
+			if(!isset($batch->content->next_page_link) || !$batch->content->next_page_link) {
+				break;
+			}
+
+			$batchRequestPath = $batch->content->next_page_link;
+
+		}
+
+		return (new Collection($results->take($maxRecords)))
+			->map(static function ($item) use ($entityClass) {
+
+				if($entityClass === null) {
+					return (array) $item;
+				}
+
+				return new $entityClass((array) $item);
+
+			});
+
 	}
 
 }
